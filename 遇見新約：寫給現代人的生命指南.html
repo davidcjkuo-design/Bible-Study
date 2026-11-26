@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="day">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="narrative">
+  <meta name="design-style" content="haven">
+  <title>遇見新約：寫給現代人的生命指南</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <style>
+    /* ==========================================================================
+       1. Haven Style Tokens + Three Reading Themes (Day / Warm / Night)
+       ========================================================================== */
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces (Daylight Fresh / 日間清新) */
+      --background: #f5f6f5;
+      --surface-container-low: #ffffff;
+      --surface-container: #e6ede6;
+      --surface-container-high: #dbe2dd;
+      --surface-scripture: #edf2f5;
+      --surface-backdrop: rgba(35, 39, 42, 0.42);
+      --surface-dock: rgba(255, 255, 255, 0.94);
+
+      /* Ink */
+      --on-surface: #23272a;
+      --on-surface-variant: #525a5e;
+
+      /* Rules */
+      --outline: #c4ccc8;
+      --outline-variant: #dce1de;
+
+      /* Accents */
+      --primary: #365366;
+      --on-primary: #ffffff;
+      --primary-container: #e2e9ee;
+      --on-primary-container: #243947;
+      --secondary: #445f48;
+      --tertiary: #5f7c63;
+      --error: #a63d32;
+      --on-error: #ffffff;
+
+      /* Semantic & Data */
+      --positive: #3e6b48;
+      --warning: #9a6324;
+      --focus: #365366;
+      --data-1: #365366;
+      --data-2: #5f7c63;
+      --data-3: #a8694a;
+      --data-4: #8a7a68;
+      --data-context: #c3cac6;
+
+      /* Fonts (Non-Latin primary first, paired with Haven Outfit & Hanken Grotesk) */
+      --font-headline: 'Noto Sans TC', 'Outfit', sans-serif;
+      --font-body: 'Noto Sans TC', 'Hanken Grotesk', sans-serif;
+      --font-serif: 'Noto Serif TC', 'Noto Sans TC', serif;
+      --font-label: 'Noto Sans TC', 'Outfit', sans-serif;
+
+      /* Shape */
+      --rounded: 0.375rem;
+      --rounded-lg: 0.5rem;
+      --rounded-full: 9999px;
+
+      /* Style effects */
+      --hairline: 1px solid var(--outline-variant);
+      --hairline-control: 1px solid var(--outline);
+      --scripture-spine: 3px solid var(--primary);
+      --elevation: none;
+      --dock-border: 1px solid var(--outline);
+
+      /* 4-Level Type Ladder (Default 17.5px mobile body, scalable via JS) */
+      --font-scale: 1;
+      --display-size: clamp(2rem, 1.55rem + 2.1vw, 3rem);
+      --headline-size: clamp(1.45rem, 1.25rem + 0.95vw, 1.95rem);
+      --subhead-size: clamp(1.125rem, 1.05rem + 0.35vw, 1.3rem);
+      --body-size: calc(1.09375rem * var(--font-scale));
+      --label-size: 0.8125rem;
+
+      /* Spacing scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    [data-theme="warm"] {
+      color-scheme: light;
+      --background: #f5f0e4;
+      --surface-container-low: #fcf9f2;
+      --surface-container: #ebe3d3;
+      --surface-container-high: #e2d8c5;
+      --surface-scripture: #f0eadb;
+      --surface-backdrop: rgba(44, 38, 31, 0.45);
+      --surface-dock: rgba(252, 249, 242, 0.95);
+
+      --on-surface: #2c261f;
+      --on-surface-variant: #61584b;
+
+      --outline: #cfc5b3;
+      --outline-variant: #e1d9c9;
+
+      --primary: #6c4f35;
+      --on-primary: #fcf9f2;
+      --primary-container: #eae0cf;
+      --on-primary-container: #493421;
+      --secondary: #4a5d46;
+      --tertiary: #7d6346;
+      --error: #9e3529;
+      --on-error: #fcf9f2;
+
+      --positive: #456840;
+      --warning: #9c611e;
+      --focus: #6c4f35;
+    }
+
+    [data-theme="night"] {
+      color-scheme: dark;
+      --background: #191d20;
+      --surface-container-low: #22272b;
+      --surface-container: #2a3136;
+      --surface-container-high: #323a40;
+      --surface-scripture: #252d33;
+      --surface-backdrop: rgba(10, 12, 14, 0.65);
+      --surface-dock: rgba(34, 39, 43, 0.94);
+
+      --on-surface: #e8ebea;
+      --on-surface-variant: #a8b2b6;
+
+      --outline: #414a50;
+      --outline-variant: #31383d;
+
+      --primary: #97b7cc;
+      --on-primary: #161a1d;
+      --primary-container: #2b3b47;
+      --on-primary-container: #d4e4ef;
+      --secondary: #9fc0a4;
+      --tertiary: #7f9f84;
+      --error: #e5887d;
+      --on-error: #191d20;
+
+      --positive: #8fc199;
+      --warning: #e0b068;
+      --focus: #97b7cc;
+    }
+
+    /* ==========================================================================
+       2. Base Reset & Core Reading Rhythm
+       ========================================================================== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+    body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.78;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
+    }
+    header { position: static !important; }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    p {
+      margin: 0;
+      max-width: 65ch;
+    }
+    p + p {
+      margin-top: 1.2em;
+    }
+
+    /* Focus rings */
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* ==========================================================================
+       3. Top Ultra-Thin Reading Progress Bar
+       ========================================================================== */
+    .reading-progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: transparent;
+      z-index: 60;
+      pointer-events: none;
+    }
+    .reading-progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      transition: width var(--dur-micro) linear;
+    }
+
+    /* ==========================================================================
+       4. Page Container & Typography Ladder (4 clear levels)
+       ========================================================================== */
+    .page-shell {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: var(--space-lg) var(--space-lg) calc(var(--space-3xl) + var(--space-xl));
+    }
+    .page-shell * { min-width: 0; }
+
+    /* Level 1: Display Title */
+    .hero-title {
+      font-family: var(--font-headline);
+      font-size: var(--display-size);
+      font-weight: 600;
+      line-height: 1.24;
+      letter-spacing: -0.02em;
+      color: var(--on-surface);
+      margin: 0;
+    }
+
+    /* Level 2: Section Heading */
+    .section-heading {
+      font-family: var(--font-headline);
+      font-size: var(--headline-size);
+      font-weight: 600;
+      line-height: 1.32;
+      letter-spacing: -0.015em;
+      color: var(--on-surface);
+      margin: 0 0 var(--space-sm);
+    }
+
+    /* Level 3: Card / Module Subheading */
+    .card-heading {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: var(--on-surface);
+      margin: 0 0 var(--space-sm);
+    }
+
+    /* Level 4: Muted Small Label */
+    .kicker-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--secondary);
+      margin-bottom: var(--space-sm);
+    }
+    .muted-caption {
+      font-size: var(--label-size);
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      line-height: 1.55;
+    }
+
+    /* ==========================================================================
+       5. Top Comfort Toolbar & Hero Header
+       ========================================================================== */
+    .top-utility-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding-bottom: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      border-bottom: var(--hairline);
+    }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: var(--label-size);
+      font-weight: 500;
+      color: var(--on-surface-variant);
+    }
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--rounded-full);
+      background-color: var(--secondary);
+      flex-shrink: 0;
+    }
+
+    .comfort-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .control-group {
+      display: inline-flex;
+      align-items: center;
+      background-color: var(--surface-container-low);
+      border: var(--hairline-control);
+      border-radius: var(--rounded);
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .ctrl-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      min-height: 38px;
+      min-width: 38px;
+      padding: 0 var(--space-sm);
+      border: none;
+      border-radius: calc(var(--rounded) - 2px);
+      background: transparent;
+      color: var(--on-surface-variant);
+      font-size: var(--label-size);
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+    .ctrl-btn:hover {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+    }
+    .ctrl-btn[aria-pressed="true"],
+    .ctrl-btn.is-active {
+      background-color: var(--primary);
+      color: var(--on-primary);
+    }
+    .ctrl-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+    .font-size-readout {
+      padding: 0 var(--space-xs);
+      font-size: var(--label-size);
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      font-variant-numeric: tabular-nums;
+      user-select: none;
+    }
+
+    .hero-block {
+      margin-bottom: var(--space-2xl);
+    }
+    .hero-lede {
+      margin-top: var(--space-md);
+      color: var(--on-surface-variant);
+      max-width: 60ch;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-md);
+      margin-top: var(--space-xl);
+    }
+    .metric-tile {
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md) var(--space-lg);
+    }
+    .metric-value {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    /* ==========================================================================
+       6. Section Framing & Lightweight Panels
+       ========================================================================== */
+    .guide-section {
+      padding-top: var(--space-2xl);
+      margin-top: var(--space-2xl);
+      border-top: var(--hairline);
+      scroll-margin-top: var(--space-lg);
+    }
+    .section-intro {
+      color: var(--on-surface-variant);
+      margin-bottom: var(--space-xl);
+    }
+
+    .haven-panel {
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+
+    /* Lightweight Scripture Card: Left Accent Spine + Soft Tint */
+    .scripture-card {
+      background-color: var(--surface-scripture);
+      border-left: var(--scripture-spine);
+      border-radius: var(--rounded);
+      padding: var(--space-md) var(--space-lg);
+      margin: var(--space-md) 0;
+    }
+    .scripture-cuv {
+      font-family: var(--font-serif);
+      font-size: var(--body-size);
+      line-height: 1.78;
+      color: var(--on-surface);
+    }
+    .scripture-ref {
+      display: inline-block;
+      margin-top: var(--space-xs);
+      font-size: var(--label-size);
+      font-weight: 500;
+      color: var(--primary);
+    }
+    .scripture-paraphrase {
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: var(--hairline);
+      font-size: calc(var(--body-size) * 0.94);
+      line-height: 1.72;
+      color: var(--on-surface-variant);
+    }
+    .paraphrase-tag {
+      display: inline-block;
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--secondary);
+      margin-right: var(--space-xs);
+    }
+
+    /* ==========================================================================
+       7. Smooth Collapsible "展開閱讀更多" Mechanism
+       ========================================================================== */
+    .expand-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      margin-top: var(--space-sm);
+      background-color: transparent;
+      border: var(--hairline-control);
+      border-radius: var(--rounded);
+      color: var(--primary);
+      font-size: var(--label-size);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .expand-toggle-btn:hover {
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    .expand-toggle-btn .chevron-icon {
+      transition: transform var(--dur-short) var(--ease-in-out);
+    }
+    .expand-toggle-btn[aria-expanded="true"] .chevron-icon {
+      transform: rotate(180deg);
+    }
+
+    .collapsible-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition: grid-template-rows var(--dur-short) var(--ease-in-out), opacity var(--dur-short) var(--ease-out);
+    }
+    .collapsible-wrap.is-open {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    .collapsible-inner {
+      overflow: hidden;
+    }
+    .collapsible-body {
+      padding-top: var(--space-md);
+      margin-top: var(--space-md);
+      border-top: var(--hairline);
+      color: var(--on-surface-variant);
+    }
+
+    /* ==========================================================================
+       8. Section 1: Three-Act Drama Interactive Stepper
+       ========================================================================== */
+    .act-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .act-tab-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      min-height: 44px;
+      padding: var(--space-md);
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out), box-shadow var(--dur-micro) var(--ease-out);
+    }
+    .act-tab-btn:hover {
+      background-color: var(--surface-container-high);
+    }
+    .act-tab-btn[aria-selected="true"] {
+      background-color: var(--primary-container);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+    .act-num {
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: var(--space-xs);
+    }
+    .act-tab-btn[aria-selected="true"] .act-num {
+      color: var(--on-primary-container);
+    }
+    .act-name {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      font-weight: 600;
+      color: var(--on-surface);
+      line-height: 1.35;
+    }
+
+    .act-stage {
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+
+    /* ==========================================================================
+       9. Section 2 & 3: Stacked Cards (Pain Points & Jesus Facets)
+       ========================================================================== */
+    .stack-list {
+      display: grid;
+      gap: var(--space-lg);
+    }
+    .scene-box {
+      background-color: var(--surface-container);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    .scene-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: var(--space-xs);
+    }
+    .core-summary {
+      font-weight: 500;
+      color: var(--on-surface);
+      margin-top: var(--space-sm);
+    }
+
+    /* ==========================================================================
+       10. Section 4: Reading Roadmap (4 Starter Books)
+       ========================================================================== */
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+    .roadmap-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      gap: var(--space-md);
+    }
+    .roadmap-card.is-explored {
+      box-shadow: inset 0 0 0 1px var(--secondary);
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px var(--space-sm);
+      border-radius: var(--rounded-full);
+      background-color: var(--surface-container);
+      color: var(--secondary);
+      font-size: var(--label-size);
+      font-weight: 600;
+    }
+    .roadmap-meta {
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      padding-top: var(--space-sm);
+      border-top: var(--hairline);
+    }
+    .roadmap-check-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      width: 100%;
+      padding: 0 var(--space-md);
+      border-radius: var(--rounded);
+      border: var(--hairline-control);
+      background-color: transparent;
+      color: var(--on-surface);
+      font-size: var(--label-size);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+    .roadmap-check-btn:hover {
+      background-color: var(--surface-container-high);
+    }
+    .roadmap-check-btn[aria-pressed="true"] {
+      background-color: var(--secondary);
+      color: var(--on-primary);
+      border-color: var(--secondary);
+    }
+
+    /* ==========================================================================
+       11. Section 5: Mood Weather Station (Horizontal Scroll Chips)
+       ========================================================================== */
+    .mood-chips-rail {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
+      scrollbar-width: thin;
+    }
+    .mood-chip {
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      padding: 0 var(--space-lg);
+      border-radius: var(--rounded-full);
+      border: var(--hairline-control);
+      background-color: var(--surface-container-low);
+      color: var(--on-surface-variant);
+      font-size: var(--label-size);
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+    .mood-chip:hover {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+    }
+    .mood-chip[aria-selected="true"] {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+
+    .mood-response-card {
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      animation: fadeDrift var(--dur-short) var(--ease-out);
+    }
+    @keyframes fadeDrift {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       12. Section 6: Jargon Accordion (Before/After) & Myth Buster (5 Myths)
+       ========================================================================== */
+    .sub-block-title {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      font-weight: 600;
+      color: var(--on-surface);
+      margin: var(--space-xl) 0 var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .sub-block-title:first-of-type {
+      margin-top: 0;
+    }
+
+    .accordion-stack {
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .accordion-item {
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      overflow: hidden;
+    }
+    .accordion-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      min-height: 54px;
+      padding: var(--space-md) var(--space-lg);
+      background: transparent;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .accordion-trigger:hover {
+      background-color: var(--surface-container-high);
+    }
+    .accordion-title-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-xs) var(--space-md);
+    }
+    .jargon-term {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .jargon-teaser {
+      font-size: var(--label-size);
+      font-weight: 500;
+      color: var(--secondary);
+    }
+    .accordion-chevron {
+      flex-shrink: 0;
+      color: var(--on-surface-variant);
+      transition: transform var(--dur-short) var(--ease-in-out);
+    }
+    .accordion-trigger[aria-expanded="true"] .accordion-chevron {
+      transform: rotate(180deg);
+    }
+
+    .accordion-panel {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition: grid-template-rows var(--dur-short) var(--ease-in-out), opacity var(--dur-short) var(--ease-out);
+    }
+    .accordion-panel.is-open {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    .accordion-panel-inner {
+      overflow: hidden;
+    }
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg) var(--space-lg);
+      border-top: var(--hairline);
+    }
+    .compare-col {
+      padding: var(--space-md);
+      border-radius: var(--rounded);
+    }
+    .compare-before {
+      background-color: var(--surface-container);
+    }
+    .compare-after {
+      background-color: var(--primary-container);
+    }
+    .compare-label {
+      display: block;
+      font-size: var(--label-size);
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+    .compare-before .compare-label {
+      color: var(--on-surface-variant);
+    }
+    .compare-after .compare-label {
+      color: var(--on-primary-container);
+    }
+    .compare-ref {
+      grid-column: 1 / -1;
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+
+    .myth-body {
+      padding: var(--space-md) var(--space-lg) var(--space-lg);
+      border-top: var(--hairline);
+      color: var(--on-surface-variant);
+    }
+    .myth-item.is-featured {
+      border-left: var(--scripture-spine);
+    }
+
+    /* ==========================================================================
+       13. Section 7: 7-Day Micro-Plan Tracker
+       ========================================================================== */
+    .plan-header-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md) var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+    .plan-progress-wrap {
+      flex: 1 1 240px;
+    }
+    .plan-progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: var(--space-xs);
+    }
+    .plan-bar-track {
+      height: 8px;
+      border-radius: var(--rounded-full);
+      background-color: var(--surface-container);
+      overflow: hidden;
+    }
+    .plan-bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--secondary);
+      border-radius: var(--rounded-full);
+      transition: width var(--dur-short) var(--ease-out);
+    }
+    .plan-reset-btn {
+      min-height: 44px;
+      padding: 0 var(--space-md);
+      background: transparent;
+      border: var(--hairline-control);
+      border-radius: var(--rounded);
+      font-size: var(--label-size);
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+    }
+    .plan-reset-btn:hover {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+    }
+    .plan-reset-btn[data-armed="true"] {
+      background-color: var(--error);
+      color: var(--on-error);
+      border-color: var(--error);
+    }
+
+    .day-card {
+      background-color: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      transition: background-color var(--dur-short) var(--ease-out);
+    }
+    .day-card.is-done {
+      background-color: var(--surface-container);
+    }
+    .day-top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+    .day-check-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      padding: 0 var(--space-md);
+      border-radius: var(--rounded);
+      border: var(--hairline-control);
+      background-color: var(--surface-container-low);
+      color: var(--on-surface);
+      font-size: var(--label-size);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .day-check-btn[aria-pressed="true"] {
+      background-color: var(--secondary);
+      color: var(--on-primary);
+      border-color: var(--secondary);
+    }
+    .micro-action-box {
+      margin-top: var(--space-md);
+      padding: var(--space-md);
+      border-radius: var(--rounded);
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    .micro-action-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--label-size);
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+
+    /* ==========================================================================
+       14. Floating Bottom Dock & Slide-up/Side Navigation Drawer
+       ========================================================================== */
+    .floating-dock {
+      position: fixed;
+      right: var(--space-lg);
+      bottom: var(--space-lg);
+      z-index: 50;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-xs);
+      background-color: var(--surface-dock);
+      border: var(--dock-border);
+      border-radius: var(--rounded-full);
+      backdrop-filter: blur(8px);
+    }
+    .dock-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      padding: 0 var(--space-md);
+      border: none;
+      border-radius: var(--rounded-full);
+      background-color: transparent;
+      color: var(--on-surface);
+      font-size: var(--label-size);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .dock-btn-primary {
+      background-color: var(--primary);
+      color: var(--on-primary);
+    }
+    .dock-btn:hover {
+      opacity: 0.92;
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: var(--surface-backdrop);
+      z-index: 70;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--dur-short) var(--ease-out);
+    }
+    .drawer-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .nav-drawer {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      width: min(360px, 100%);
+      background-color: var(--surface-container-low);
+      border-left: var(--hairline);
+      z-index: 80;
+      padding: var(--space-lg);
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform var(--dur-short) var(--ease-out);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+    .nav-drawer.is-open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: var(--space-md);
+      border-bottom: var(--hairline);
+    }
+    .drawer-close-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
+      border: var(--hairline-control);
+      border-radius: var(--rounded);
+      background: transparent;
+      cursor: pointer;
+    }
+    .drawer-nav-list {
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .drawer-nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      min-height: 48px;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      text-decoration: none;
+      color: var(--on-surface);
+      font-weight: 500;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .drawer-nav-link:hover {
+      background-color: var(--surface-container-high);
+    }
+    .drawer-nav-num {
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--secondary);
+      min-width: 24px;
+    }
+
+    /* ==========================================================================
+       15. Footer
+       ========================================================================== */
+    .guide-footer {
+      margin-top: var(--space-2xl);
+      padding-top: var(--space-xl);
+      border-top: var(--hairline);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      line-height: 1.7;
+    }
+
+    /* ==========================================================================
+       16. Mobile Responsive Rules (@media max-width: 640px)
+       ========================================================================== */
+    @media (max-width: 640px) {
+      .page-shell {
+        padding: var(--space-md) var(--space-md) calc(var(--space-3xl) + var(--space-xl));
+      }
+      .hero-metrics {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+      }
+      .act-tabs {
+        grid-template-columns: 1fr;
+      }
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+      .floating-dock {
+        right: var(--space-md);
+        bottom: var(--space-md);
+      }
+      .nav-drawer {
+        top: auto;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: 82vh;
+        border-left: none;
+        border-top: var(--hairline);
+        border-radius: var(--rounded-lg) var(--rounded-lg) 0 0;
+        transform: translateY(100%);
+      }
+      .nav-drawer.is-open {
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Ultra-thin Top Reading Progress Bar -->
+  <div class="reading-progress-track" aria-hidden="true">
+    <div id="reading-progress-bar" class="reading-progress-bar"></div>
+  </div>
+
+  <div class="page-shell">
+    <!-- Static Top Header & Reading Tools -->
+    <header>
+      <div class="top-utility-bar">
+        <div class="brand-tag">
+          <span class="brand-dot" aria-hidden="true"></span>
+          <span>現代心靈導讀・繁體和合本</span>
+        </div>
+
+        <div class="comfort-controls" aria-label="閱讀輔助工具">
+          <div class="control-group" role="group" aria-label="字級縮放">
+            <button type="button" id="btn-font-dec" class="ctrl-btn" onclick="adjustFontSize(-1)" aria-label="縮小字體">A-</button>
+            <span id="font-size-label" class="font-size-readout">17.5px</span>
+            <button type="button" id="btn-font-inc" class="ctrl-btn" onclick="adjustFontSize(1)" aria-label="放大字體">A+</button>
+          </div>
+
+          <div class="control-group" role="group" aria-label="閱讀主題配色">
+            <button type="button" class="ctrl-btn theme-btn" data-theme-val="day" onclick="setTheme('day')" aria-pressed="true">日間清新</button>
+            <button type="button" class="ctrl-btn theme-btn" data-theme-val="warm" onclick="setTheme('warm')" aria-pressed="false">護眼暖米</button>
+            <button type="button" class="ctrl-btn theme-btn" data-theme-val="night" onclick="setTheme('night')" aria-pressed="false">夜間深色</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-block">
+        <span class="kicker-label">寫給未信者、初信者與心靈尋求者</span>
+        <h1 class="hero-title">遇見新約：寫給現代人的生命指南</h1>
+        <p class="hero-lede">
+          如果你曾覺得聖經是一本充滿規條的厚重古書，這份指南想邀請你換一個角度閱讀。不帶說教壓力、不靠艱深術語，我們一起從現代生活的真實焦慮出發，重新看見那份為每個人寫下的溫柔約定。
+        </p>
+
+        <div class="hero-metrics">
+          <div class="metric-tile">
+            <div class="metric-value">3 幕故事核心</div>
+            <div class="muted-caption">從降臨、犧牲到普通人蛻變，1 分鐘看懂主軸</div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-value">9 個黑話翻譯</div>
+            <div class="muted-caption">解碼順服、信心、背十字架等高頻心防詞彙</div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-value">7 天口袋練習</div>
+            <div class="muted-caption">每天 1 分鐘微行動，把平安帶進日常細節</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- =====================================================================
+           Chapter 01: 新約主要在講甚麼（三幕劇）
+           ===================================================================== -->
+      <section id="sec-story" class="guide-section">
+        <span class="kicker-label">01｜故事主軸</span>
+        <h2 class="section-heading">新約主要在講甚麼？一份為每個人寫的新約定</h2>
+        <p class="section-intro">
+          在原文裡，「約」不是冷冰冰的條文，而是一份<strong>充滿承諾的關係契約</strong>。新約聖經不是要人類靠好表現換取及格，而是記錄了一場正在進行的三幕劇。點選下方每一幕，讀懂它如何與你有關：
+        </p>
+
+        <div class="act-tabs" role="tablist" aria-label="新約三幕劇">
+          <button type="button" class="act-tab-btn" role="tab" aria-selected="true" data-act="0" onclick="selectAct(0)">
+            <span class="act-num">第一幕</span>
+            <span class="act-name">降臨同行</span>
+          </button>
+          <button type="button" class="act-tab-btn" role="tab" aria-selected="false" data-act="1" onclick="selectAct(1)">
+            <span class="act-num">第二幕</span>
+            <span class="act-name">犧牲與復活</span>
+          </button>
+          <button type="button" class="act-tab-btn" role="tab" aria-selected="false" data-act="2" onclick="selectAct(2)">
+            <span class="act-num">第三幕</span>
+            <span class="act-name">普通人的蛻變</span>
+          </button>
+        </div>
+
+        <div id="act-stage" class="act-stage" role="tabpanel">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           Chapter 02: 生活現場痛點與真實場景
+           ===================================================================== -->
+      <section id="sec-painpoints" class="guide-section">
+        <span class="kicker-label">02｜生活現場痛點</span>
+        <h2 class="section-heading">當世界要你不斷證明自己，新約怎麼回應？</h2>
+        <p class="section-intro">
+          這不是遠離塵囂的空談。把經文放回深夜的房間、週日的傍晚與安靜下來的社交場域，你會發現兩千年前的文字依然精準接住現代人的疲憊。
+        </p>
+
+        <div class="stack-list">
+          <!-- Pain Point 01 -->
+          <article class="haven-panel">
+            <span class="kicker-label">痛點 01｜自我價值與績效</span>
+            <h3 class="card-heading">績效焦慮：總覺得自己還不夠好</h3>
+            <div class="scene-box">
+              <span class="scene-label"><i data-lucide="moon" width="15" height="15" aria-hidden="true"></i> 真實生活場景</span>
+              <p>深夜關了燈躺在床上，腦袋卻反覆回想主管晚上在群組裡留的那句「這部分明天再討論」；手指不自覺解鎖手機，滑著同齡人的升遷、買房與旅行照，心裡突然一沉，彷彿今天如果沒有新的產出，自己就變得毫無價值。</p>
+            </div>
+            <div class="scripture-card">
+              <div class="scripture-cuv">「你們得救是本乎恩、也因著信、這並不是出於自己、乃是 神所賜的．也不是出於行為、免得有人自誇。」</div>
+              <span class="scripture-ref">以弗所書 2:8–9（繁體和合本）</span>
+              <div class="scripture-paraphrase">
+                <span class="paraphrase-tag">白話微語譯</span>
+                你的價值是白白得到的禮物，不是靠努力刷績效換來的，所以不必再焦慮地向世界證明自己。
+              </div>
+            </div>
+            <p class="core-summary">核心摘要：新約將「工作表現」與「存在價值」徹底分開——你不是考到一百分才配被愛，而是先被接納，才擁有鬆弛創作的自由。</p>
+            <button type="button" class="expand-toggle-btn" aria-expanded="false" onclick="toggleExpand(this, 'pp-detail-1')">
+              <span>展開閱讀更多</span>
+              <i data-lucide="chevron-down" class="chevron-icon" width="16" height="16" aria-hidden="true"></i>
+            </button>
+            <div id="pp-detail-1" class="collapsible-wrap">
+              <div class="collapsible-inner">
+                <div class="collapsible-body">
+                  <p>緊接著在《以弗所書》2:10，保羅補上一句關鍵的話：「我們原是他的工作、在基督耶穌裡造成的。」原文裡的「工作」（poiēma），意思是一首詩、一件被細心雕琢的作品。</p>
+                  <p>現代社會教我們用 KPI 與競爭排名替自己定價，一旦停下來就產生罪惡感。但新約的邏輯恰恰相反：你的存在本身就先被肯定，工作只是我們回應這份豐盛的方式，不再是證明自己「夠格活著」的戰場。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Pain Point 02 -->
+          <article class="haven-panel">
+            <span class="kicker-label">痛點 02｜未來恐懼與失眠</span>
+            <h3 class="card-heading">未知恐懼：週日傍晚開始的收假窒息感</h3>
+            <div class="scene-box">
+              <span class="scene-label"><i data-lucide="clock" width="15" height="15" aria-hidden="true"></i> 真實生活場景</span>
+              <p>明明假期還沒結束，但只要到了週日下午五點，胸口就隱隱浮現一種「收假窒息感」。腦中不斷預演還沒發生的麻煩——產業變動、家人健康、存款數字、或幾年後會不會後悔此刻的決定，越逼自己睡著，思緒越是清晰。</p>
+            </div>
+            <div class="scripture-card">
+              <div class="scripture-cuv">「所以不要為明天憂慮．因為明天自有明天的憂慮．一天的難處一天當就夠了。」</div>
+              <span class="scripture-ref">馬太福音 6:34（繁體和合本）</span>
+              <div class="scripture-paraphrase">
+                <span class="paraphrase-tag">白話微語譯</span>
+                不要把明天的重量預支到今晚來扛；你承載壓力的設計是一天份，而陪你度過的力量每天都會準時更新。
+              </div>
+            </div>
+            <p class="core-summary">核心摘要：焦慮來自試圖控制「還沒發生的明天」；新約邀請人把視線拉回今天這一步，因為你不是孤身一人面對未知。</p>
+            <button type="button" class="expand-toggle-btn" aria-expanded="false" onclick="toggleExpand(this, 'pp-detail-2')">
+              <span>展開閱讀更多</span>
+              <i data-lucide="chevron-down" class="chevron-icon" width="16" height="16" aria-hidden="true"></i>
+            </button>
+            <div id="pp-detail-2" class="collapsible-wrap">
+              <div class="collapsible-inner">
+                <div class="collapsible-body">
+                  <p>在《馬太福音》6:26–32 裡，耶穌指著天空的飛鳥與野地裡的百合花問：「你們不比飛鳥貴重得多麼？」祂從不否認明天依然會有挑戰，而是提醒我們：人並沒有被賦予「同時扛下未來十年變數」的肩膀。</p>
+                  <p>《羅馬書》8:38–39 也寫道，無論是現在的事或將來的事，都不能把我們與神的愛隔絕。平安不是「保證永遠沒有風浪」，而是「無論明天發生什麼，陪伴你的那份愛不會斷線」。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Pain Point 03 -->
+          <article class="haven-panel">
+            <span class="kicker-label">痛點 03｜關係裂痕與孤立</span>
+            <h3 class="card-heading">關係防衛：在人群裡熱鬧，心卻關著門</h3>
+            <div class="scene-box">
+              <span class="scene-label"><i data-lucide="shield" width="15" height="15" aria-hidden="true"></i> 真實生活場景</span>
+              <p>曾經真心付出卻被誤解、比較或背叛，久了以後，你在心裡築起一道透明的高牆。聚會時能保持禮貌微笑，聊得也算愉快，但關上門回到家，卻清楚知道沒有人真正走進自己的世界，也不敢輕易卸下防備。</p>
+            </div>
+            <div class="scripture-card">
+              <div class="scripture-cuv">「因他使我們和睦、將兩下合而為一、拆毀了中間隔斷的牆．」</div>
+              <span class="scripture-ref">以弗所書 2:14（繁體和合本）</span>
+              <div class="scripture-paraphrase">
+                <span class="paraphrase-tag">白話微語譯</span>
+                人與人之間總有用偏見、防衛與傷痛築起的高牆；而真正的和好，是有人先為我們拆掉那道牆，讓你不必再孤單武裝。
+              </div>
+            </div>
+            <p class="core-summary">核心摘要：防備是為了不再受傷，但孤立也鎖住了被理解的可能；只有當我們先經歷無條件的接納，才長得出溫柔且不委屈的敞開。</p>
+            <button type="button" class="expand-toggle-btn" aria-expanded="false" onclick="toggleExpand(this, 'pp-detail-3')">
+              <span>展開閱讀更多</span>
+              <i data-lucide="chevron-down" class="chevron-icon" width="16" height="16" aria-hidden="true"></i>
+            </button>
+            <div id="pp-detail-3" class="collapsible-wrap">
+              <div class="collapsible-inner">
+                <div class="collapsible-body">
+                  <p>一世紀的猶太人與外邦人之間，存在著深不見底的族群隔閡與歷史心結。《以弗所書》描寫的「拆毀隔斷的牆」，不是要人假裝過去的傷痛沒發生，而是指出我們都能在同一份恩典裡被接住。</p>
+                  <p>《以弗所書》4:32 與《歌羅西書》3:13 邀請我們「彼此包容、彼此饒恕」，前提是因為「主怎樣饒恕了你們」。當一個人被深深愛過，就不再需要靠築牆來保護自己。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           Chapter 03: 耶穌其人（三大真實性格面貌）
+           ===================================================================== -->
+      <section id="sec-jesus" class="guide-section">
+        <span class="kicker-label">03｜認識耶穌其人</span>
+        <h2 class="section-heading">拿撒勒的同行者：打破刻板印象的三個真實面貌</h2>
+        <p class="section-intro">
+          如果把彩繪玻璃上嚴肅遙遠的宗教形象先放一旁，直接翻開新約現場，你會遇見一個充滿生命張力、幽默又溫柔的真實人物。
+        </p>
+
+        <div class="stack-list">
+          <article class="haven-panel">
+            <span class="kicker-label">面貌 01｜接地氣的溝通者</span>
+            <h3 class="card-heading">生活故事大師：把大道理放進柴米油鹽</h3>
+            <p>耶穌很少使用艱澀抽象的神學名詞。祂聊農夫撒種、婦人點燈找一枚小硬幣、天空自由的飛鳥與路邊的野花。對祂來說，最深的真理就藏在每天經過的菜市場與飯桌上。</p>
+            <div class="scripture-card">
+              <div class="scripture-cuv">「你們看那天上的飛鳥、也不種、也不收、也不積蓄在倉裡、你們的天父尚且養活他．你們不比飛鳥貴重得多麼。」</div>
+              <span class="scripture-ref">馬太福音 6:26（繁體和合本）</span>
+              <div class="scripture-paraphrase">
+                <span class="paraphrase-tag">白話微語譯</span>
+                看看頭頂飛過去的小鳥吧，它們不必靠焦慮囤積才活得下去；在創造萬有的那位眼中，你的生命遠比它們珍貴得多。
+              </div>
+            </div>
+            <button type="button" class="expand-toggle-btn" aria-expanded="false" onclick="toggleExpand(this, 'jesus-detail-1')">
+              <span>展開閱讀更多</span>
+              <i data-lucide="chevron-down" class="chevron-icon" width="16" height="16" aria-hidden="true"></i>
+            </button>
+            <div id="jesus-detail-1" class="collapsible-wrap">
+              <div class="collapsible-inner">
+                <div class="collapsible-body">
+                  <p>《馬可福音》1:22 記載，群眾聽見耶穌說話都感到很希奇，因為「他教訓他們、正像有權柄的人、不像文士」。當時的宗教專家習慣照本宣科背誦古人條文，但耶穌直接用生活裡的比喻刺中人心，讓沒受過高深教育的市井小民也能一聽就懂。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="haven-panel">
+            <span class="kicker-label">面貌 02｜溫柔的顛覆者</span>
+            <h3 class="card-heading">打破社會偏見的叛逆同行者</h3>
+            <p>在等級與族群壁壘分明的一世紀社會，耶穌總是不按牌理出牌。祂刻意走進外人繞道避開的撒瑪利亞小鎮（約翰福音 4:4–5），和被貼上標籤的稅吏、窮人與邊緣人同桌吃飯，撕掉一切「誰才夠格被愛」的潛規則。</p>
+            <div class="scripture-card">
+              <div class="scripture-cuv">「他離了猶太、又往加利利去．必須經過撒瑪利亞。於是到了撒瑪利亞的一座城、名叫敘加……」</div>
+              <span class="scripture-ref">約翰福音 4:3–5（繁體和合本）</span>
+              <div class="scripture-paraphrase">
+                <span class="paraphrase-tag">白話微語譯</span>
+                別人為了保持體面而刻意繞開的邊緣地帶，正是耶穌心裡「非去不可」、親自敲門坐下來聊天的地方。
+              </div>
+            </div>
+            <button type="button" class="expand-toggle-btn" aria-expanded="false" onclick="toggleExpand(this, 'jesus-detail-2')">
+              <span>展開閱讀更多</span>
+              <i data-lucide="chevron-down" class="chevron-icon" width="16" height="16" aria-hidden="true"></i>
+            </button>
+            <div id="jesus-detail-2" class="collapsible-wrap">
+              <div class="collapsible-inner">
+                <div class="collapsible-body">
+                  <p>當時的正統派最在意禮儀潔淨，甚至不願與異族同飲一杯水。但耶穌卻在正午的大太陽下，主動向一位曾受盡婚姻挫折的撒瑪利亞婦人要水喝。祂從不遷就社會的歧視標準——對自以為義的偽善者祂直言不諱，對覺得自己低人一等的普通人，祂永遠為對方留著主位。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="haven-panel">
+            <span class="kicker-label">面貌 03｜血肉之軀的共情</span>
+            <h3 class="card-heading">真實動容、有同理心的人</h3>
+            <p>新約從不把耶穌塑造成沒有情緒的鋼鐵超人。面對好友離世、家人痛哭的現場，祂沒有急著給出「不要哭、要堅強」的空洞安慰，而是站在墓前與哀傷的人一同落淚（約翰福音 11:35）；面對背叛與痛苦，祂也曾坦白地感到憂傷與掙扎。</p>
+            <div class="scripture-card">
+              <div class="scripture-cuv">「他自己既然被試探而受苦、就能搭救被試探的人。」</div>
+              <span class="scripture-ref">希伯來書 2:18（繁體和合本）</span>
+              <div class="scripture-paraphrase">
+                <span class="paraphrase-tag">白話微語譯</span>
+                正因為祂親自走過人性最脆弱、最委屈與最煎熬的時刻，所以當你撐不住時，祂不是站在岸上指點，而是伸手拉住你。
+              </div>
+            </div>
+            <button type="button" class="expand-toggle-btn" aria-expanded="false" onclick="toggleExpand(this, 'jesus-detail-3')">
+              <span>展開閱讀更多</span>
+              <i data-lucide="chevron-down" class="chevron-icon" width="16" height="16" aria-hidden="true"></i>
+            </button>
+            <div id="jesus-detail-3" class="collapsible-wrap">
+              <div class="collapsible-inner">
+                <div class="collapsible-body">
+                  <p>《希伯來書》2:14–18 清楚寫道，祂親自成為「血肉之體」，品嚐過人世間的飢餓、誤解、孤獨與死亡的滋味。這意味著在信仰裡，你不需要假裝自己很堅強；當你感到委屈或低落時，祂比任何人都聽得懂你的眼淚。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           Chapter 04: 無痛閱讀入門地圖
+           ===================================================================== -->
+      <section id="sec-roadmap" class="guide-section">
+        <span class="kicker-label">04｜無痛閱讀地圖</span>
+        <h2 class="section-heading">第一次翻開新約，推薦從這四卷書開始</h2>
+        <p class="section-intro">
+          新約一共有 27 卷書，不需要從第 1 頁的長長族譜硬啃！按照下面的節奏順序挑一卷開始，把「想看 / 讀完」標記下來，建立自己的閱讀地圖。
+        </p>
+
+        <div class="roadmap-grid">
+          <article class="roadmap-card" data-book-card="mark">
+            <div>
+              <span class="step-badge">第 1 站・故事節奏</span>
+              <h3 class="card-heading" style="margin-top: var(--space-sm);">馬可福音（16 章）</h3>
+              <p class="muted-caption" style="margin-bottom: var(--space-sm);">像看電影一樣，快速認識耶穌的行動與性格</p>
+              <p>篇幅最短、節奏最明快的一卷福音書，極少長篇說教，幾乎每一段都在記錄耶穌如何走進人群、醫治病痛、並回應人們的好奇與敵意。</p>
+            </div>
+            <div>
+              <p class="roadmap-meta">建議起點：馬可福音 1–2 章（海邊呼召漁夫與街頭對話）</p>
+              <button type="button" class="roadmap-check-btn" data-book="mark" aria-pressed="false" onclick="toggleBook('mark')" style="margin-top: var(--space-sm);">
+                <i data-lucide="bookmark" width="16" height="16" aria-hidden="true"></i>
+                <span>標記為已讀 / 收藏起點</span>
+              </button>
+            </div>
+          </article>
+
+          <article class="roadmap-card" data-book-card="john">
+            <div>
+              <span class="step-badge">第 2 站・心靈對話</span>
+              <h3 class="card-heading" style="margin-top: var(--space-sm);">約翰福音（21 章）</h3>
+              <p class="muted-caption" style="margin-bottom: var(--space-sm);">安靜夜晚的深度談心，充滿光與水的詩意</p>
+              <p>如果馬可福音拍的是「耶穌做了什麼」，約翰福音寫的就是「祂的內心世界」。充滿一對一的深夜長談與井邊對話，讀起來極度平靜。</p>
+            </div>
+            <div>
+              <p class="roadmap-meta">建議起點：約翰福音 1、3、4 章（真光與井邊的相遇）</p>
+              <button type="button" class="roadmap-check-btn" data-book="john" aria-pressed="false" onclick="toggleBook('john')" style="margin-top: var(--space-sm);">
+                <i data-lucide="bookmark" width="16" height="16" aria-hidden="true"></i>
+                <span>標記為已讀 / 收藏起點</span>
+              </button>
+            </div>
+          </article>
+
+          <article class="roadmap-card" data-book-card="luke">
+            <div>
+              <span class="step-badge">第 3 站・溫度與細節</span>
+              <h3 class="card-heading" style="margin-top: var(--space-sm);">路加福音（24 章）</h3>
+              <p class="muted-caption" style="margin-bottom: var(--space-sm);">醫生筆下的細膩紀錄，看見無數被忽略的小人物</p>
+              <p>作者路加像一位溫柔的紀錄片導演（路 1:1–4），保留了最多耶穌溫柔對待女性、小孩、窮人與邊緣人的細節，文字間充滿人味。</p>
+            </div>
+            <div>
+              <p class="roadmap-meta">建議起點：路加福音 1、9 章（不要怕，已經蒙恩了）</p>
+              <button type="button" class="roadmap-check-btn" data-book="luke" aria-pressed="false" onclick="toggleBook('luke')" style="margin-top: var(--space-sm);">
+                <i data-lucide="bookmark" width="16" height="16" aria-hidden="true"></i>
+                <span>標記為已讀 / 收藏起點</span>
+              </button>
+            </div>
+          </article>
+
+          <article class="roadmap-card" data-book-card="philippians">
+            <div>
+              <span class="step-badge">第 4 站・生活喜樂與實踐</span>
+              <h3 class="card-heading" style="margin-top: var(--space-sm);">腓立比書（僅 4 章）</h3>
+              <p class="muted-caption" style="margin-bottom: var(--space-sm);">15 分鐘讀完，在壓力與逆境中練習喜樂</p>
+              <p>這封信是保羅在被囚軟禁期間寫給老朋友的信，全篇卻反覆提及「喜樂」與「彼此相顧」，教你如何在不完美的生活裡依然像光一樣發亮。</p>
+            </div>
+            <div>
+              <p class="roadmap-meta">建議起點：腓立比書 2 章（虛己與明光照耀的日常實踐）</p>
+              <button type="button" class="roadmap-check-btn" data-book="philippians" aria-pressed="false" onclick="toggleBook('philippians')" style="margin-top: var(--space-sm);">
+                <i data-lucide="bookmark" width="16" height="16" aria-hidden="true"></i>
+                <span>標記為已讀 / 收藏起點</span>
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           Chapter 05: 心靈氣象站 / 解憂選物盒（橫向滑動膠囊列）
+           ===================================================================== -->
+      <section id="sec-mood" class="guide-section">
+        <span class="kicker-label">05｜心靈氣象站</span>
+        <h2 class="section-heading">此刻你的心，正停在哪一種天氣？</h2>
+        <p class="section-intro">
+          單指左右滑動並點選最貼近你現在感受的膠囊，打開一份不說教的解憂短文與專屬安慰對話。
+        </p>
+
+        <div class="mood-chips-rail" role="tablist" aria-label="心情氣象站標籤">
+          <button type="button" class="mood-chip" role="tab" aria-selected="true" data-mood="anxiety" onclick="selectMood('anxiety')">
+            <i data-lucide="cloud-rain" width="16" height="16" aria-hidden="true"></i>
+            <span>焦慮緊繃</span>
+          </button>
+          <button type="button" class="mood-chip" role="tab" aria-selected="false" data-mood="doubt" onclick="selectMood('doubt')">
+            <i data-lucide="help-circle" width="16" height="16" aria-hidden="true"></i>
+            <span>自我懷疑</span>
+          </button>
+          <button type="button" class="mood-chip" role="tab" aria-selected="false" data-mood="lonely" onclick="selectMood('lonely')">
+            <i data-lucide="moon-star" width="16" height="16" aria-hidden="true"></i>
+            <span>覺得孤單</span>
+          </button>
+          <button type="button" class="mood-chip" role="tab" aria-selected="false" data-mood="wronged" onclick="selectMood('wronged')">
+            <i data-lucide="cloud-lightning" width="16" height="16" aria-hidden="true"></i>
+            <span>心裡委屈</span>
+          </button>
+          <button type="button" class="mood-chip" role="tab" aria-selected="false" data-mood="lost" onclick="selectMood('lost')">
+            <i data-lucide="compass" width="16" height="16" aria-hidden="true"></i>
+            <span>對未來迷茫</span>
+          </button>
+        </div>
+
+        <div id="mood-stage" class="mood-response-card" role="tabpanel">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           Chapter 06: 基督徒黑話翻譯蒟蒻（9 詞）＆ 迷思粉碎機（5 問）
+           ===================================================================== -->
+      <section id="sec-decoder" class="guide-section">
+        <span class="kicker-label">06｜語言與心防解碼</span>
+        <h2 class="section-heading">基督徒黑話翻譯蒟蒻 ＆ 迷思粉碎機</h2>
+        <p class="section-intro">
+          很多時候，讓人對信仰產生距離感的不是真理本身，而是令人困惑的「圈內行話」與長期累積的誤解。點擊每一張卡片，展開前後對照的白話解析。
+        </p>
+
+        <h3 class="sub-block-title">
+          <i data-lucide="languages" width="20" height="20" aria-hidden="true"></i>
+          <span>基督徒黑話翻譯蒟蒻（9 大高頻詞彙前後對照）</span>
+        </h3>
+        <div id="jargon-list" class="accordion-stack">
+          <!-- Rendered by JS -->
+        </div>
+
+        <h3 class="sub-block-title" style="margin-top: var(--space-2xl);">
+          <i data-lucide="sparkles" width="20" height="20" aria-hidden="true"></i>
+          <span>迷思粉碎機（5 大常見心防誠實回答）</span>
+        </h3>
+        <div id="myth-list" class="accordion-stack">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           Chapter 07: 7 天微計畫（每日經文 + 1 分鐘口袋微行動）
+           ===================================================================== -->
+      <section id="sec-plan" class="guide-section">
+        <span class="kicker-label">07｜溫柔實踐</span>
+        <h2 class="section-heading">7 天口袋微計畫：每天 1 分鐘的生活練習</h2>
+        <p class="section-intro">
+          改變不需要等到「把整本聖經讀懂」。給自己七天時間，每天讀兩句貼近日常的話，完成一個一分鐘就能做的口袋微行動，親身感受內心是否多了一點空間。
+        </p>
+
+        <div class="plan-header-bar">
+          <div class="plan-progress-wrap">
+            <div class="plan-progress-text">
+              <span>目前實踐進度</span>
+              <span id="plan-count-label">已完成 0 / 7 天</span>
+            </div>
+            <div class="plan-bar-track">
+              <div id="plan-bar-fill" class="plan-bar-fill"></div>
+            </div>
+          </div>
+          <button type="button" id="plan-reset-btn" class="plan-reset-btn" onclick="resetPlanProgress(this)">重置紀錄</button>
+        </div>
+
+        <div id="plan-list" class="stack-list">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="guide-footer">
+      <p><strong>經文來源與編寫說明：</strong>本指南所引述之經典經文皆出自《聖經》繁體和合本（含以弗所書、使徒行傳、馬太福音、馬可福音、路加福音、約翰福音、羅馬書、哥林多前書、腓立比書、歌羅西書、希伯來書、彼得前書、啟示錄），「白話微語譯」則為幫助現代讀者跨越古今語境而撰寫的生活化對照釋義。</p>
+    </footer>
+  </div>
+
+  <!-- Floating Bottom Dock for Mobile Thumb Access -->
+  <div class="floating-dock" aria-label="快捷導覽列">
+    <button type="button" class="dock-btn" onclick="scrollToTopSmooth()" aria-label="回到頂部">
+      <i data-lucide="arrow-up" width="18" height="18" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="dock-btn dock-btn-primary" onclick="openDrawer()" aria-label="開啟目錄選單" aria-controls="nav-drawer" aria-expanded="false" id="drawer-open-btn">
+      <i data-lucide="menu" width="18" height="18" aria-hidden="true"></i>
+      <span>導覽目錄</span>
+    </button>
+  </div>
+
+  <!-- Drawer Backdrop -->
+  <div id="drawer-backdrop" class="drawer-backdrop" onclick="closeDrawer()" aria-hidden="true"></div>
+
+  <!-- Slide-out / Bottom-sheet Navigation Drawer -->
+  <aside id="nav-drawer" class="nav-drawer" aria-label="七大主題導覽目錄" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <span class="kicker-label" style="margin-bottom: 0;">目錄導覽</span>
+        <div class="card-heading" style="margin-bottom: 0;">遇見新約 7 大主題</div>
+      </div>
+      <button type="button" class="drawer-close-btn" onclick="closeDrawer()" aria-label="關閉目錄">
+        <i data-lucide="x" width="20" height="20" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav class="drawer-nav-list">
+      <a href="#sec-story" class="drawer-nav-link" onclick="closeDrawer()">
+        <span class="drawer-nav-num">01</span>
+        <span>新約核心三幕劇：一份新約定</span>
+      </a>
+      <a href="#sec-painpoints" class="drawer-nav-link" onclick="closeDrawer()">
+        <span class="drawer-nav-num">02</span>
+        <span>生活現場痛點：績效、失眠與孤立</span>
+      </a>
+      <a href="#sec-jesus" class="drawer-nav-link" onclick="closeDrawer()">
+        <span class="drawer-nav-num">03</span>
+        <span>耶穌其人：三大真實性格面貌</span>
+      </a>
+      <a href="#sec-roadmap" class="drawer-nav-link" onclick="closeDrawer()">
+        <span class="drawer-nav-num">04</span>
+        <span>無痛閱讀地圖：四卷入門推薦</span>
+      </a>
+      <a href="#sec-mood" class="drawer-nav-link" onclick="closeDrawer()">
+        <span class="drawer-nav-num">05</span>
+        <span>心靈氣象站：今日解憂選物</span>
+      </a>
+      <a href="#sec-decoder" class="drawer-nav-link" onclick="closeDrawer()">
+        <span class="drawer-nav-num">06</span>
+        <span>9 大黑話翻譯 ＆ 5 大迷思粉碎</span>
+      </a>
+      <a href="#sec-plan" class="drawer-nav-link" onclick="closeDrawer()">
+        <span class="drawer-nav-num">07</span>
+        <span>7 天口袋微計畫：每日 1 分鐘練習</span>
+      </a>
+    </nav>
+
+    <div style="margin-top: auto; padding-top: var(--space-md); border-top: var(--hairline);">
+      <span class="kicker-label">閱讀舒適度設定</span>
+      <div style="display: grid; gap: var(--space-sm);">
+        <div class="control-group" style="justify-content: space-between; width: 100%;" role="group" aria-label="目錄字級縮放">
+          <button type="button" class="ctrl-btn" onclick="adjustFontSize(-1)" style="flex: 1;">字體縮小 A-</button>
+          <span id="drawer-font-label" class="font-size-readout">17.5px</span>
+          <button type="button" class="ctrl-btn" onclick="adjustFontSize(1)" style="flex: 1;">字體放大 A+</button>
+        </div>
+        <div class="control-group" style="justify-content: space-between; width: 100%;" role="group" aria-label="目錄主題切換">
+          <button type="button" class="ctrl-btn theme-btn" data-theme-val="day" onclick="setTheme('day')" style="flex: 1;">日間清新</button>
+          <button type="button" class="ctrl-btn theme-btn" data-theme-val="warm" onclick="setTheme('warm')" style="flex: 1;">護眼暖米</button>
+          <button type="button" class="ctrl-btn theme-btn" data-theme-val="night" onclick="setTheme('night')" style="flex: 1;">夜間深色</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <api-shim></api-shim>
+
+  <script>
+    /* ========================================================================
+       1. Data Definitions (Template Literals for Safe String Handling)
+       ======================================================================== */
+    const ACTS_DATA = [
+      {
+        badge: `第一幕・降臨同行`,
+        title: `神沒有站在岸上喊話，而是親自走進水裡`,
+        body: `許多人以為宗教是一位高高在上的考官，拿著紅筆幫人類的表現打分數。但新約的開端完全顛覆了這個畫面：造物主沒有隔著雲端下指令，而是親自成為一個木匠家庭的孩子，有血有肉、會累也會哭，走進人類混亂又平凡的每一天。`,
+        cuv: `「反倒虛己、取了奴僕的形像、成為人的樣式．既有人的樣子、就自己卑微、存心順服、以至於死、且死在十字架上。」`,
+        ref: `腓立比書 2:7–8（繁體和合本）`,
+        paraphrase: `祂主動放下高不可攀的身分，走進我們真實的限制與脆弱之中，站在與我們相同的高度，甚至陪我們走過最深的黑暗。`
+      },
+      {
+        badge: `第二幕・犧牲與復活`,
+        title: `不是等你變完美才愛你，而是先把門打開`,
+        body: `人活著常背負兩種重量：過去做錯或搞砸的愧疚感，以及對終點與死亡的無力感。在第二幕裡，耶穌沒有把責任推回給軟弱的人類，而是選擇自己承擔代價，並以復活宣告：絕望、失敗與死亡，都不再是生命最後的句點。`,
+        cuv: `「惟有基督在我們還作罪人的時候為我們死、 神的愛就在此向我們顯明了。」`,
+        ref: `羅馬書 5:8（繁體和合本）`,
+        paraphrase: `不是等你把自己修好、表現滿分了才願意愛你；而是在你最狼狽、最覺得自己不配的時候，祂已經先為你買單、把回家的門打開。`
+      },
+      {
+        badge: `第三幕・普通人的蛻變`,
+        title: `一群不完美的人，開始活出不一樣的自由`,
+        body: `新約並沒有在耶穌復活後就草草謝幕。原本膽小、急躁、甚至連書都沒念過幾本的普通漁夫與市井小民，因為親身經歷了這種無條件的接納，從此不再被恐懼綁架，開始在充滿階級與對立的羅馬帝國裡，建立起彼此照顧、真實相愛的社群。`,
+        cuv: `「他們見彼得約翰的膽量、又看出他們原是沒有學問的小民、就希奇、認明他們是跟過耶穌的。」`,
+        ref: `使徒行傳 4:13（繁體和合本）`,
+        paraphrase: `後來改變身邊世界的人，不是天生的道德模範或菁英，而是一群普通人，因為遇見了無條件的愛，身上開始發出一種自由又踏實的光。`
+      }
+    ];
+
+    const MOOD_DATA = {
+      anxiety: {
+        kicker: `心情氣象・陣雨伴隨強風`,
+        title: `給現在正感到焦慮緊繃的你`,
+        letter: `腦袋像一台關不掉的電腦，一直反覆預演還沒發生的糟糕狀況，身體卻已經好累了對吧？你很努力想把所有變數都接住、想讓一切不出錯，但今天，你可以先允許自己把控球權暫時放下來。明天有明天的難處，今晚的你，只需要照顧好今晚的呼吸。`,
+        cuv: `「所以不要為明天憂慮．因為明天自有明天的憂慮．一天的難處一天當就夠了。」`,
+        ref: `馬太福音 6:34（繁體和合本）`,
+        paraphrase: `別把明天的焦慮提前領到今晚來扛；你只領到今天這一份體力，而那份托住你的平安，明天太陽升起時會再準時補給你。`
+      },
+      doubt: {
+        kicker: `心情氣象・大霧迷漫`,
+        title: `給正在自我懷疑、覺得自己不夠好的你`,
+        letter: `是不是又拿別人的亮眼成就來對比自己的狼狽？我們很容易習慣用「產出多少、表現多好」來決定自己值不值得被喜歡。可是親愛的朋友，你不是工廠流水線上等待檢驗的標準化零件，而是一篇被細心構思、獨一無二的作品。`,
+        cuv: `「我們原是他的工作、在基督耶穌裡造成的、為要叫我們行善、就是 神所預備叫我們行的。」`,
+        ref: `以弗所書 2:10（繁體和合本）`,
+        paraphrase: `你的生命本身就是一件用心雕琢的傑作，不是等表現滿分才值得被愛，而是你本就帶著珍貴的意義被放在這個世界上。`
+      },
+      lonely: {
+        kicker: `心情氣象・清冷微霜`,
+        title: `給覺得很孤單、沒人真正懂的你`,
+        letter: `最孤單的時候，往往不是一個人在房間，而是身邊明明有人說話，心裡卻像隔著一層厚厚的玻璃。有些脆弱在群組裡說不出口，怕打擾別人、又怕被輕描淡寫帶過。在新約的邀請裡，你不再是一個四處流浪的過客，一直有一位聽得懂沉默的朋友坐在你旁邊。`,
+        cuv: `「這樣、你們不再作外人、和客旅、是與聖徒同國、是 神家裡的人了．」`,
+        ref: `以弗所書 2:19（繁體和合本）`,
+        paraphrase: `你不再是必須自己硬撐、看人臉色的局外人或臨時房客；在這裡，你有一張永遠為你留著的椅子，是家裡的一份子。`
+      },
+      wronged: {
+        kicker: `心情氣象・悶熱雷雨`,
+        title: `給心裡很委屈、努力卻被忽略的你`,
+        letter: `明明認真守著原則、默默把事情做好，最後卻背了不屬於自己的黑鍋，或是連一句公道都沒等到。這種無處訴說的悶痛真的很傷人。不要急著逼自己「馬上原諒」或假裝不在乎，你的委屈祂都看見了，這份踏實付出在祂眼中從來沒有白費。`,
+        cuv: `「然而靠著愛我們的主、在這一切的事上、已經得勝有餘了。」`,
+        ref: `羅馬書 8:37（繁體和合本）`,
+        paraphrase: `外在的誤解與不公義無法定義你是誰；在真正愛你的那位面前，你所受的委屈都算數，也終將被溫柔平反與托住。`
+      },
+      lost: {
+        kicker: `心情氣象・陰天無風`,
+        title: `給對未來迷茫、看不見方向的人`,
+        letter: `看著身旁的人好像都有明確的五年計畫，自己卻像站在沒有路標的十字路口，連下一步該往哪裡踏都不確定。但迷茫並不代表你在浪費生命。很多時候，人生的導航不會一次把整段終點都畫出來，它只會先亮起你腳前這一步的微光——走穩眼前這一步，就夠了。`,
+        cuv: `「並且照明你們心中的眼睛、使你們知道他的恩召有何等指望．他在聖徒中得的基業、有何等豐盛的榮耀．」`,
+        ref: `以弗所書 1:18（繁體和合本）`,
+        paraphrase: `願一股溫柔的亮光點亮你心裡的眼睛，讓你在看清整張地圖之前，先看見眼前那份不會落空的盼望。`
+      }
+    };
+
+    const JARGON_DATA = [
+      {
+        term: `罪（Sin）`,
+        teaser: `原意其實是「射箭偏離靶心」`,
+        before: `聽起來像在指責你十惡不赦、做壞事被警察抓包，讓人本能地想防禦或逃跑。`,
+        after: `新約希臘文原意是「沒有射中紅心」。它描述的不是「你是個壞人」，而是我們常在追求愛與安全感的過程中偏離了方向，既傷了自己、也傷了關係。`,
+        ref: `參考出處：羅馬書 5:12、以弗所書 2:1–5`
+      },
+      {
+        term: `福音（Gospel）`,
+        teaser: `不是道德規勸，而是「好消息」`,
+        before: `聽起來像枯燥的宗教宣傳單、或者要你趕快買單的推銷話術。`,
+        after: `原意是「扭轉戰局的捷報」。一般宗教給的是「好建議」（教你怎麼努力才能及格），但福音宣告的是「好消息」——有人已經為你贏下這場你打不贏的仗。`,
+        ref: `參考出處：以弗所書 1:13、馬可福音 1:1`
+      },
+      {
+        term: `救恩（Salvation）`,
+        teaser: `不只關乎死後，更關乎「此刻的復原」`,
+        before: `讓人誤以為只是死後用來換一張「進天堂VIP入場券」的遙遠保險。`,
+        after: `原意包含「醫治、保全、從深水拉上岸」。它指的是從現在這一刻起，把一個人從焦慮、羞愧與破裂中拯救出來，恢復完整與自由的狀態。`,
+        ref: `參考出處：以弗所書 2:8、使徒行傳 4:12`
+      },
+      {
+        term: `悔改（Repentance）`,
+        teaser: `不是自我厭惡，而是「調轉方向」`,
+        before: `腦中立刻浮現跪在地上痛哭流涕、對過去的自己充滿厭惡與自責的畫面。`,
+        after: `希臘文原意是「心意更新、轉身換個方向看」。就像開車發現走錯交流道時，不需要捶胸頓足罵自己笨，而是在下一個路口優雅掉頭，朝向正確的方向前行。`,
+        ref: `參考出處：使徒行傳 3:19、以弗所書 4:23`
+      },
+      {
+        term: `聖靈（Holy Spirit）`,
+        teaser: `住進心裡、安靜陪伴的人生導師`,
+        before: `聽起來像飄在教堂半空中的神秘靈體，或某種玄妙不可捉摸的氣場。`,
+        after: `新約描繪祂是神親自差派到你身旁的「同在陪伴者」（保惠師）。當你軟弱說不出話、或面臨困難抉擇時，祂在心裡替你打氣、帶來平靜與清晰。`,
+        ref: `參考出處：以弗所書 1:13–14、3:16`
+      },
+      {
+        term: `教會（Church）`,
+        teaser: `不是建築物，是一群「彼此扶持的人」`,
+        before: `以為是指星期天早上必須穿戴整齊去報到的教堂建築或儀式聚會。`,
+        after: `原意是「被呼召聚集在一起的人」。它不是展示完美聖人的博物館，而是一群坦承自己不完美、卻願意拆掉圍牆、一起吃飯分擔生活重擔的真實社群。`,
+        ref: `參考出處：以弗所書 2:19–22、使徒行傳 2:46`
+      },
+      {
+        term: `順服（Submission）`,
+        teaser: `不是盲從愚忠，而是「信任後的交託」`,
+        before: `聽起來像要你閉嘴聽話、放棄獨立思考、無條件服從權威的盲從愚忠。`,
+        after: `原意帶有「主動排列整齊、彼此協調」的溫度。這不是把大腦關機，而是在看清這位引導者真心為你好、且值得信賴後，放下無謂的硬撐，放心把方向盤交託給祂。`,
+        ref: `參考出處：以弗所書 5:21、腓立比書 2:8`
+      },
+      {
+        term: `背十字架（Taking up the Cross）`,
+        teaser: `不是自討苦吃，而是「為所愛甘願付出的代價」`,
+        before: `常被誤解為「基督徒就是要活該受罪、把人生過得越苦才越屬靈」。`,
+        after: `它不是自討苦吃，而是就像父母為了照顧生病的孩子甘願犧牲睡眠一樣——為了守護你真正珍愛的人事物與價值原則，不走投機取巧的捷徑，心甘情願承擔必要的界線與代價。`,
+        ref: `參考出處：路加福音 9:23`
+      },
+      {
+        term: `信心（Faith）`,
+        teaser: `不是閉眼催眠，而是「對守信夥伴的踏實信任」`,
+        before: `常被以為是「沒有證據卻閉上眼睛硬相信」，一種強迫自己的心理暗示。`,
+        after: `就像你坐上一張經過確認、結構穩固的椅子，敢把全身重量放上去一樣。信心不是盲目自我催眠，而是基於對耶穌品格與守信的認識，所抱持的踏實信任。`,
+        ref: `參考出處：以弗所書 2:8、羅馬書 10:9–10`
+      }
+    ];
+
+    const MYTHS_DATA = [
+      {
+        featured: false,
+        title: `迷思 01｜「信了教是不是就會失去自由，被一堆規矩綁死？」`,
+        body: `如果把信仰看成一張又一張的禁止清單，確實會令人窒息。但新約反覆強調，靠死守規條並不能換取生命（加拉太書 3:11）。真正的界線不是為了把人關在籠子裡，而是像河堤保護河水不致氾濫、或像五線譜讓音符得以演奏。當你知道自己被無條件接納時，你才有真正的自由去選擇對生命有益的事，而不再被慾望或他人眼光牽著鼻子走。`
+      },
+      {
+        featured: false,
+        title: `迷思 02｜「我平常沒做壞事、是個好人，為什麼還需要信仰？」`,
+        body: `新約邀請人的起點，從來不是「壞人改造班」，而是「疲憊的人回到家」。就算我們問心無愧、做人坦蕩，心底依然會有孤單、對未來與死亡的無力感，以及渴望被徹底理解卻又害怕失望的矛盾。恩典不是對壞人的懲罰，而是給每一位誠實面對生命有限的現代人，一份不用靠努力交換的安歇。`
+      },
+      {
+        featured: false,
+        title: `迷思 03｜「我看過有些基督徒也很虛偽或愛論斷，那我為什麼要信？」`,
+        body: `這個疑問非常真實，也不需要替任何人的錯誤擦脂抹粉。但教會就像一間醫院，裡面本來就住著許多還在治療中的病人，而不是已經康復的完美展示廳。如果我們想認識一段音樂好不好聽，不能只看剛學琴的學生彈得走音，而是去聽原作者親自譜寫的樂章——回到新約四福音書，親自看看耶穌自己是怎麼對待人的。`
+      },
+      {
+        featured: false,
+        title: `迷思 04｜「聖經充滿兩千年前的歷史背景，我根本看不懂怎麼辦？」`,
+        body: `面對兩千年前的古籍，覺得陌生是完全正常的！你不需要先考過歷史地理才配翻開它。建議把艱澀的儀式與地名先輕輕擱在一旁，直接從《馬可福音》的故事或《腓立比書》的家書開始讀起，只去抓取裡面跟「人的焦慮、孤單、愛與希望」有關的句子，你會驚訝地發現它離我們其實很近。`
+      },
+      {
+        featured: true,
+        title: `迷思 05｜終極苦難之問：「如果神充滿愛，為什麼世界上還有疾病、戰爭與無辜痛苦？」`,
+        body: `這是人類面對信仰時最誠實、也最沉痛的提問。新約並沒有給你一個冷冰冰的哲學公式，也不會用「一切都是最好的安排」這種廉價的話來敷衍你的眼淚。相反地，新約記錄了一位親自走入人類痛苦現場的耶穌——當親友離世、眾人悲傷時，祂沒有站在高處講大道理，而是站在墳前「與哀傷的人同哭」（約翰福音 11:35），並且親自背負無辜的冤屈與疼痛走上十字架。面對尚未完全修復的世界，新約給的不是「苦難不會發生」的保證，而是「在苦難中祂就在你身邊」的同在，以及《啟示錄》21:4 最終的應許：有一天，祂要親自「擦去他們一切的眼淚」，徹底終結死亡、悲哀與疼痛。`
+      }
+    ];
+
+    const PLAN_DATA = [
+      {
+        day: 1,
+        title: `放下「夠格」的證明題`,
+        cuv: `「你們得救是本乎恩、也因著信、這並不是出於自己、乃是 神所賜的。」（以弗所書 2:8）`,
+        paraphrase: `你的存在本身就是禮物，不用靠完美表現才配得上被愛。`,
+        actionTitle: `自我接納默念`,
+        actionDesc: `今晚睡前把手輕輕放在胸口，深呼吸三次，對自己說一句：「今天我已經盡力了，就算還有沒做完的事，我的價值依然完整。」`
+      },
+      {
+        day: 2,
+        title: `只扛今天這一份重量`,
+        cuv: `「所以不要為明天憂慮．因為明天自有明天的憂慮．一天的難處一天當就夠了。」（馬太福音 6:34）`,
+        paraphrase: `不預支明天的擔心，專心把今天這一步走好。`,
+        actionTitle: `揉掉焦慮便條紙`,
+        actionDesc: `拿一張小紙條寫下此刻最擔憂的一件「還沒發生的未來」，告訴自己「這屬於明天以後」，然後把紙揉掉丟進垃圾桶，專心做好眼前一件小事。`
+      },
+      {
+        day: 3,
+        title: `像老朋友一樣散步`,
+        cuv: `「他自己既然被試探而受苦、就能搭救被試探的人。」（希伯來書 2:18）`,
+        paraphrase: `祂走過真實的人性脆弱，聽得懂你沒說出口的疲憊。`,
+        actionTitle: `三分鐘不看手機散步`,
+        actionDesc: `今天午休或下班路上，刻意把手機收起來三分鐘，抬頭看看天空與樹梢，像跟懂你的老朋友散步一樣，在心裡坦白說說你今天的感受。`
+      },
+      {
+        day: 4,
+        title: `說出一句建造人的話`,
+        cuv: `「污穢的言語、一句不可出口、只要隨事說造就人的好話、叫聽見的人得益處。」（以弗所書 4:29）`,
+        paraphrase: `用溫柔而具體的語言，替身邊的人多留一點暖意。`,
+        actionTitle: `具體的微感謝`,
+        actionDesc: `對今天服務或幫助過你的人（店員、同事、家人），多說一句具體的謝謝：「謝謝你剛剛幫我注意那個細節，真的幫了大忙。」`
+      },
+      {
+        day: 5,
+        title: `在日落前設下停火線`,
+        cuv: `「生氣卻不要犯罪．不可含怒到日落。」（以弗所書 4:26）`,
+        paraphrase: `情緒很真實，但別讓委屈與怒氣陪你過夜。`,
+        actionTitle: `寫下或釋放一件小疙瘩`,
+        actionDesc: `檢查今天有沒有讓你一直煩躁的小事；即使事情還沒完全解決，今晚關燈前對自己說：「今晚先不帶著這股火氣入睡，明天再處理。」`
+      },
+      {
+        day: 6,
+        title: `拆掉一點點孤單的牆`,
+        cuv: `「各人不要單顧自己的事、也要顧別人的事。」（腓立比書 2:4）`,
+        paraphrase: `微小的關心，往往能接住另一個同樣孤單的人。`,
+        actionTitle: `發送無目的的關心短訊`,
+        actionDesc: `打開通訊軟體，選一位好久沒聯絡的朋友，傳一則不帶任何工作或請託的訊息：「突然想到你，最近過得還好嗎？不用急著回我。」`
+      },
+      {
+        day: 7,
+        title: `在安靜中迎接更新`,
+        cuv: `「坐寶座的說、看哪、我將一切都更新了。」（啟示錄 21:5）`,
+        paraphrase: `過去的疲憊與眼淚不會白流，新的開始正在展開。`,
+        actionTitle: `週日傍晚的微儀式`,
+        actionDesc: `為自己泡一杯熱茶或溫水，安靜寫下這七天裡一件值得感謝的小事，用平靜取代收假焦慮，準備迎接嶄新的一週。`
+      }
+    ];
+
+    /* ========================================================================
+       2. Application State & Persistence via notebookAppApi
+       ======================================================================== */
+    const FONT_STEPS = [
+      { scale: 0.9143, label: `16px` },
+      { scale: 1.0,    label: `17.5px` },
+      { scale: 1.0857, label: `19px` },
+      { scale: 1.1714, label: `20.5px` }
+    ];
+
+    let appState = {
+      theme: `day`,
+      fontStep: 1,
+      activeAct: 0,
+      activeMood: `anxiety`,
+      exploredBooks: [],
+      completedDays: []
+    };
+
+    async function persistState() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+          await window.notebookAppApi.setAppState(appState);
+        }
+      } catch (err) {
+        /* Fail silently in non-hosted previews */
+      }
+    }
+
+    async function initApp() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved && typeof saved === `object`) {
+            if (saved.theme) appState.theme = saved.theme;
+            if (typeof saved.fontStep === `number` && saved.fontStep >= 0 && saved.fontStep < FONT_STEPS.length) {
+              appState.fontStep = saved.fontStep;
+            }
+            if (typeof saved.activeAct === `number`) appState.activeAct = saved.activeAct;
+            if (saved.activeMood && MOOD_DATA[saved.activeMood]) appState.activeMood = saved.activeMood;
+            if (Array.isArray(saved.exploredBooks)) appState.exploredBooks = saved.exploredBooks;
+            if (Array.isArray(saved.completedDays)) appState.completedDays = saved.completedDays;
+          }
+        }
+      } catch (err) {
+        /* Default initial state */
+      }
+
+      applyThemeUI(appState.theme);
+      applyFontUI(appState.fontStep);
+      renderActStage(appState.activeAct);
+      renderMoodStage(appState.activeMood);
+      renderJargonList();
+      renderMythList();
+      renderPlanList();
+      syncBookButtons();
+      updateScrollProgress();
+
+      if (window.lucide && typeof window.lucide.createIcons === `function`) {
+        window.lucide.createIcons();
+      }
+
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+          window.notebookAppApi.notifyAppReady();
+        }
+      } catch (err) {
+        /* Safe fallback */
+      }
+    }
+
+    /* ========================================================================
+       3. Reading Controls (Theme & Font Scaling)
+       ======================================================================== */
+    function setTheme(themeVal) {
+      appState.theme = themeVal;
+      applyThemeUI(themeVal);
+      persistState();
+    }
+
+    function applyThemeUI(themeVal) {
+      document.documentElement.setAttribute(`data-theme`, themeVal);
+      const btns = document.querySelectorAll(`.theme-btn`);
+      btns.forEach(function(btn) {
+        const isMatch = btn.getAttribute(`data-theme-val`) === themeVal;
+        btn.setAttribute(`aria-pressed`, isMatch ? `true` : `false`);
+      });
+    }
+
+    function adjustFontSize(delta) {
+      const nextStep = appState.fontStep + delta;
+      if (nextStep < 0 || nextStep >= FONT_STEPS.length) return;
+      appState.fontStep = nextStep;
+      applyFontUI(nextStep);
+      persistState();
+    }
+
+    function applyFontUI(stepIdx) {
+      const config = FONT_STEPS[stepIdx] || FONT_STEPS[1];
+      document.documentElement.style.setProperty(`--font-scale`, String(config.scale));
+      const lblTop = document.getElementById(`font-size-label`);
+      const lblDrawer = document.getElementById(`drawer-font-label`);
+      if (lblTop) lblTop.textContent = config.label;
+      if (lblDrawer) lblDrawer.textContent = config.label;
+
+      const btnDec = document.getElementById(`btn-font-dec`);
+      const btnInc = document.getElementById(`btn-font-inc`);
+      if (btnDec) btnDec.disabled = stepIdx <= 0;
+      if (btnInc) btnInc.disabled = stepIdx >= FONT_STEPS.length - 1;
+    }
+
+    /* ========================================================================
+       4. Three-Act Story Stepper
+       ======================================================================== */
+    function selectAct(idx) {
+      if (idx < 0 || idx >= ACTS_DATA.length) return;
+      appState.activeAct = idx;
+      renderActStage(idx);
+      persistState();
+    }
+
+    function renderActStage(idx) {
+      const tabs = document.querySelectorAll(`.act-tab-btn`);
+      tabs.forEach(function(tab) {
+        const match = Number(tab.getAttribute(`data-act`)) === idx;
+        tab.setAttribute(`aria-selected`, match ? `true` : `false`);
+      });
+
+      const stage = document.getElementById(`act-stage`);
+      const item = ACTS_DATA[idx];
+      if (!stage || !item) return;
+
+      stage.innerHTML = `
+        <span class="kicker-label">${item.badge}</span>
+        <h3 class="card-heading">${item.title}</h3>
+        <p>${item.body}</p>
+        <div class="scripture-card">
+          <div class="scripture-cuv">${item.cuv}</div>
+          <span class="scripture-ref">${item.ref}</span>
+          <div class="scripture-paraphrase">
+            <span class="paraphrase-tag">白話微語譯</span>
+            ${item.paraphrase}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ========================================================================
+       5. Smooth Collapsible ("展開閱讀更多")
+       ======================================================================== */
+    function toggleExpand(btn, targetId) {
+      const target = document.getElementById(targetId);
+      if (!btn || !target) return;
+      const isOpen = btn.getAttribute(`aria-expanded`) === `true`;
+      const nextOpen = !isOpen;
+      btn.setAttribute(`aria-expanded`, nextOpen ? `true` : `false`);
+      const labelSpan = btn.querySelector(`span`);
+      if (labelSpan) labelSpan.textContent = nextOpen ? `收合內容` : `展開閱讀更多`;
+      if (nextOpen) {
+        target.classList.add(`is-open`);
+      } else {
+        target.classList.remove(`is-open`);
+      }
+    }
+
+    /* ========================================================================
+       6. Reading Roadmap Bookmarks
+       ======================================================================== */
+    function toggleBook(bookId) {
+      const idx = appState.exploredBooks.indexOf(bookId);
+      if (idx >= 0) {
+        appState.exploredBooks.splice(idx, 1);
+      } else {
+        appState.exploredBooks.push(bookId);
+      }
+      syncBookButtons();
+      persistState();
+    }
+
+    function syncBookButtons() {
+      const btns = document.querySelectorAll(`.roadmap-check-btn`);
+      btns.forEach(function(btn) {
+        const id = btn.getAttribute(`data-book`);
+        const active = appState.exploredBooks.indexOf(id) >= 0;
+        btn.setAttribute(`aria-pressed`, active ? `true` : `false`);
+        const span = btn.querySelector(`span`);
+        if (span) span.textContent = active ? `已標記加入閱讀清單` : `標記為已讀 / 收藏起點`;
+        const card = document.querySelector(`[data-book-card="${id}"]`);
+        if (card) {
+          if (active) card.classList.add(`is-explored`);
+          else card.classList.remove(`is-explored`);
+        }
+      });
+    }
+
+    /* ========================================================================
+       7. Mood Weather Station (Horizontal Chips -> Comfort Response)
+       ======================================================================== */
+    function selectMood(moodKey) {
+      if (!MOOD_DATA[moodKey]) return;
+      appState.activeMood = moodKey;
+      renderMoodStage(moodKey);
+      persistState();
+    }
+
+    function renderMoodStage(moodKey) {
+      const chips = document.querySelectorAll(`.mood-chip`);
+      chips.forEach(function(chip) {
+        const match = chip.getAttribute(`data-mood`) === moodKey;
+        chip.setAttribute(`aria-selected`, match ? `true` : `false`);
+      });
+
+      const stage = document.getElementById(`mood-stage`);
+      const item = MOOD_DATA[moodKey];
+      if (!stage || !item) return;
+
+      stage.innerHTML = `
+        <span class="kicker-label">${item.kicker}</span>
+        <h3 class="card-heading">${item.title}</h3>
+        <p>${item.letter}</p>
+        <div class="scripture-card">
+          <div class="scripture-cuv">${item.cuv}</div>
+          <span class="scripture-ref">${item.ref}</span>
+          <div class="scripture-paraphrase">
+            <span class="paraphrase-tag">白話微語譯</span>
+            ${item.paraphrase}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ========================================================================
+       8. Jargon Accordion (9 items) & Myth Buster Accordion (5 items)
+       ======================================================================== */
+    function renderJargonList() {
+      const container = document.getElementById(`jargon-list`);
+      if (!container) return;
+
+      container.innerHTML = JARGON_DATA.map(function(item, idx) {
+        return `
+          <div class="accordion-item">
+            <button type="button" class="accordion-trigger" aria-expanded="false" aria-controls="jargon-panel-${idx}" onclick="toggleAccordion(this, 'jargon-panel-${idx}')">
+              <div class="accordion-title-wrap">
+                <span class="jargon-term">${item.term}</span>
+                <span class="jargon-teaser">${item.teaser}</span>
+              </div>
+              <i data-lucide="chevron-down" class="accordion-chevron" width="18" height="18" aria-hidden="true"></i>
+            </button>
+            <div id="jargon-panel-${idx}" class="accordion-panel">
+              <div class="accordion-panel-inner">
+                <div class="compare-grid">
+                  <div class="compare-col compare-before">
+                    <span class="compare-label">常見誤解（表面聽起來）</span>
+                    <p>${item.before}</p>
+                  </div>
+                  <div class="compare-col compare-after">
+                    <span class="compare-label">白話原意（其實想說的是）</span>
+                    <p>${item.after}</p>
+                  </div>
+                  <div class="compare-ref">${item.ref}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join(``);
+    }
+
+    function renderMythList() {
+      const container = document.getElementById(`myth-list`);
+      if (!container) return;
+
+      container.innerHTML = MYTHS_DATA.map(function(item, idx) {
+        const featuredCls = item.featured ? ` is-featured` : ``;
+        return `
+          <div class="accordion-item myth-item${featuredCls}">
+            <button type="button" class="accordion-trigger" aria-expanded="false" aria-controls="myth-panel-${idx}" onclick="toggleAccordion(this, 'myth-panel-${idx}')">
+              <span class="jargon-term" style="font-size: var(--body-size);">${item.title}</span>
+              <i data-lucide="chevron-down" class="accordion-chevron" width="18" height="18" aria-hidden="true"></i>
+            </button>
+            <div id="myth-panel-${idx}" class="accordion-panel">
+              <div class="accordion-panel-inner">
+                <div class="myth-body">
+                  <p>${item.body}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join(``);
+    }
+
+    function toggleAccordion(btn, panelId) {
+      const panel = document.getElementById(panelId);
+      if (!btn || !panel) return;
+      const isOpen = btn.getAttribute(`aria-expanded`) === `true`;
+      const nextOpen = !isOpen;
+      btn.setAttribute(`aria-expanded`, nextOpen ? `true` : `false`);
+      if (nextOpen) {
+        panel.classList.add(`is-open`);
+      } else {
+        panel.classList.remove(`is-open`);
+      }
+    }
+
+    /* ========================================================================
+       9. 7-Day Micro-Plan Tracker
+       ======================================================================== */
+    function renderPlanList() {
+      const container = document.getElementById(`plan-list`);
+      if (!container) return;
+
+      container.innerHTML = PLAN_DATA.map(function(item) {
+        const isDone = appState.completedDays.indexOf(item.day) >= 0;
+        const doneCls = isDone ? ` is-done` : ``;
+        const btnLabel = isDone ? `已完成` : `完成打卡`;
+        return `
+          <article class="day-card${doneCls}" id="day-card-${item.day}">
+            <div class="day-top-row">
+              <div>
+                <span class="kicker-label" style="margin-bottom: var(--space-xs);">Day ${item.day}</span>
+                <h3 class="card-heading">${item.title}</h3>
+              </div>
+              <button type="button" class="day-check-btn" aria-pressed="${isDone ? `true` : `false`}" onclick="toggleDay(${item.day})">
+                <i data-lucide="${isDone ? `check-circle-2` : `circle`}" width="16" height="16" aria-hidden="true"></i>
+                <span>${btnLabel}</span>
+              </button>
+            </div>
+            <div class="scripture-card">
+              <div class="scripture-cuv">${item.cuv}</div>
+              <div class="scripture-paraphrase">
+                <span class="paraphrase-tag">今日重點</span>
+                ${item.paraphrase}
+              </div>
+            </div>
+            <div class="micro-action-box">
+              <span class="micro-action-label">
+                <i data-lucide="footprints" width="15" height="15" aria-hidden="true"></i>
+                <span>1 分鐘口袋微行動：${item.actionTitle}</span>
+              </span>
+              <p>${item.actionDesc}</p>
+            </div>
+          </article>
+        `;
+      }).join(``);
+
+      updatePlanProgressUI();
+    }
+
+    function toggleDay(dayNum) {
+      const idx = appState.completedDays.indexOf(dayNum);
+      if (idx >= 0) {
+        appState.completedDays.splice(idx, 1);
+      } else {
+        appState.completedDays.push(dayNum);
+      }
+      renderPlanList();
+      if (window.lucide && typeof window.lucide.createIcons === `function`) {
+        window.lucide.createIcons();
+      }
+      persistState();
+    }
+
+    function updatePlanProgressUI() {
+      const count = appState.completedDays.length;
+      const pct = Math.round((count / 7) * 100);
+      const lbl = document.getElementById(`plan-count-label`);
+      const fill = document.getElementById(`plan-bar-fill`);
+      if (lbl) lbl.textContent = `已完成 ${count} / 7 天`;
+      if (fill) fill.style.width = `${pct}%`;
+    }
+
+    function resetPlanProgress(btn) {
+      if (!btn) return;
+      if (btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.textContent = `再點一次確認重置`;
+        setTimeout(function() {
+          if (btn.dataset.armed === `true`) {
+            btn.dataset.armed = `false`;
+            btn.textContent = `重置紀錄`;
+          }
+        }, 3500);
+        return;
+      }
+      btn.dataset.armed = `false`;
+      btn.textContent = `重置紀錄`;
+      appState.completedDays = [];
+      renderPlanList();
+      if (window.lucide && typeof window.lucide.createIcons === `function`) {
+        window.lucide.createIcons();
+      }
+      persistState();
+    }
+
+    /* ========================================================================
+       10. Drawer Navigation & Scroll Progress
+       ======================================================================== */
+    function openDrawer() {
+      const drawer = document.getElementById(`nav-drawer`);
+      const backdrop = document.getElementById(`drawer-backdrop`);
+      const openBtn = document.getElementById(`drawer-open-btn`);
+      if (drawer) {
+        drawer.classList.add(`is-open`);
+        drawer.setAttribute(`aria-hidden`, `false`);
+      }
+      if (backdrop) {
+        backdrop.classList.add(`is-open`);
+        backdrop.setAttribute(`aria-hidden`, `false`);
+      }
+      if (openBtn) openBtn.setAttribute(`aria-expanded`, `true`);
+    }
+
+    function closeDrawer() {
+      const drawer = document.getElementById(`nav-drawer`);
+      const backdrop = document.getElementById(`drawer-backdrop`);
+      const openBtn = document.getElementById(`drawer-open-btn`);
+      if (drawer) {
+        drawer.classList.remove(`is-open`);
+        drawer.setAttribute(`aria-hidden`, `true`);
+      }
+      if (backdrop) {
+        backdrop.classList.remove(`is-open`);
+        backdrop.setAttribute(`aria-hidden`, `true`);
+      }
+      if (openBtn) openBtn.setAttribute(`aria-expanded`, `false`);
+    }
+
+    function scrollToTopSmooth() {
+      window.scrollTo({ top: 0, behavior: `smooth` });
+    }
+
+    function updateScrollProgress() {
+      const bar = document.getElementById(`reading-progress-bar`);
+      if (!bar) return;
+      const doc = document.documentElement;
+      const scrollTop = window.scrollY || doc.scrollTop;
+      const maxScroll = doc.scrollHeight - window.innerHeight;
+      const pct = maxScroll > 0 ? Math.min(100, Math.max(0, (scrollTop / maxScroll) * 100)) : 0;
+      bar.style.width = `${pct}%`;
+    }
+
+    window.addEventListener(`scroll`, updateScrollProgress, { passive: true });
+    window.addEventListener(`keydown`, function(e) {
+      if (e.key === `Escape`) closeDrawer();
+    });
+    window.addEventListener(`DOMContentLoaded`, initApp);
+  </script>
+</body>
+</html>
