@@ -1,0 +1,2722 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="briefing">
+  <title>使徒保羅宣教旅程全覽圖譜｜新約聖經互動研究檔案</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces: warm stone-white paper */
+      --background: #faf9f5;
+      --surface-container-low: #ffffff;
+      --surface-container: #f1efe8;
+      --surface-container-high: #e6e2d6;
+
+      /* Ink */
+      --on-surface: #17181a;
+      --on-surface-variant: #56585c;
+
+      /* Rules */
+      --outline: #17181a;
+      --outline-variant: #dedad0;
+
+      /* Accents */
+      --primary: #17181a;
+      --on-primary: #faf9f5;
+      --primary-container: #f2b705;
+      --on-primary-container: #17181a;
+      --secondary: #1f4e5f;
+      --tertiary: #785008;
+      --tag-warm-bg: #f5e6c4;
+      --error: #b42318;
+      --on-error: #ffffff;
+
+      /* Data series & map layers */
+      --data-1: #1f4e5f;
+      --data-2: #d99000;
+      --data-3: #2b6e52;
+      --data-4: #b84a39;
+      --data-5: #5b4b8a;
+      --data-context: #c4bfb2;
+      --map-ocean: #dce8ee;
+      --map-land: #efeadd;
+      --map-border: #bfb6a3;
+      --map-grid: #c9d7de;
+
+      /* Fonts (CJK listed first per non-Latin typography rules) */
+      --font-headline: 'Noto Serif TC', 'Source Serif 4', serif;
+      --font-body: 'Noto Sans TC', 'Plus Jakarta Sans', sans-serif;
+      --font-label: 'Geist Mono', 'Noto Sans TC', monospace;
+
+      /* Shape */
+      --rounded: 0.25rem;
+      --rounded-lg: 0.375rem;
+      --rounded-full: 0.25rem;
+
+      /* Style effects */
+      --section-rule: 1.5px solid var(--outline);
+      --card-border: 1px solid var(--outline-variant);
+      --badge-radius: 2px;
+      --heading-tracking: -0.015em;
+      --label-tracking: 0.06em;
+
+      /* Shared tokens */
+      --positive: #2b6e52;
+      --warning: #b45309;
+      --focus: #1f4e5f;
+
+      /* Type scale: Dashboard / Data Explorer */
+      --display-size: clamp(1.75rem, 1.35rem + 1.4vw, 2.35rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing scale */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Base reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    header { position: static !important; }
+    button, input, select, textarea { font-family: inherit; }
+
+    :focus-visible {
+      outline: 2.5px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .app-shell {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: var(--space-lg) var(--space-lg) var(--space-2xl);
+    }
+
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: 0;
+      max-width: 1240px;
+      margin: 0 auto;
+      overflow-x: clip;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Briefing Defining Treatment 1: Dossier bar with signal-gold pill */
+    .dossier-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      border-bottom: var(--section-rule);
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .dossier-bar-left {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .dossier-pill {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--badge-radius);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .dossier-pill-latin {
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+    }
+    .dossier-meta {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+
+    /* Briefing Defining Treatment 2: Editorial serif headline with petrol-slate standfirst */
+    .masthead {
+      padding-bottom: var(--space-md);
+    }
+    .title {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: var(--display-size);
+      letter-spacing: var(--heading-tracking);
+      line-height: 1.15;
+      color: var(--on-surface);
+      margin: 0;
+    }
+    .standfirst {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: var(--subhead-size);
+      color: var(--secondary);
+      margin: var(--space-xs) 0 0;
+      max-width: 68ch;
+      line-height: 1.5;
+    }
+
+    /* Sticky SPA Navigation Bar */
+    .spa-nav-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 1100;
+      background: var(--background);
+      border-top: var(--section-rule);
+      border-bottom: var(--section-rule);
+      padding: var(--space-sm) 0;
+      margin-bottom: var(--space-lg);
+    }
+    .spa-nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: var(--space-sm);
+    }
+    .nav-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      border: var(--card-border);
+      border-radius: var(--rounded);
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out);
+      text-align: left;
+    }
+    .nav-tab:hover {
+      background: var(--surface-container);
+    }
+    .nav-tab.is-active {
+      background: var(--primary);
+      color: var(--on-primary);
+      box-shadow: inset 0 -3px 0 0 var(--primary-container);
+    }
+    .nav-tab .index-num {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--secondary);
+      background: var(--surface-container);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--badge-radius);
+    }
+    .nav-tab.is-active .index-num {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      animation: fadePanel var(--dur-short) var(--ease-out);
+    }
+    .tab-panel.is-active {
+      display: block;
+    }
+    @keyframes fadePanel {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section Headings */
+    .section-head {
+      margin-bottom: var(--space-md);
+    }
+    .section-title {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: var(--headline-size);
+      line-height: 1.2;
+      margin: 0;
+      color: var(--on-surface);
+    }
+    .section-deck {
+      font-weight: 600;
+      color: var(--secondary);
+      margin: var(--space-xs) 0 0;
+      max-width: 68ch;
+    }
+
+    /* Briefing Defining Treatment 3: Crisp white bordered figure cards */
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    .figure-card {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md) var(--space-lg);
+    }
+    .figure-card .label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      display: block;
+      margin-bottom: var(--space-xs);
+    }
+    .figure-card .value {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+      font-variant-numeric: lining-nums tabular-nums;
+      color: var(--on-surface);
+      line-height: 1.15;
+    }
+    .figure-card .sub {
+      font-size: 0.8125rem;
+      color: var(--secondary);
+      font-weight: 600;
+      margin-top: var(--space-xs);
+    }
+
+    /* Briefing Defining Treatment 5: Warm stone sidebar / callouts */
+    .aside-box {
+      background: var(--surface-container);
+      border-top: var(--section-rule);
+      padding: var(--space-md) var(--space-lg);
+      border-radius: 0 0 var(--rounded-lg) var(--rounded-lg);
+    }
+    .aside-box h3 {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      margin: 0 0 var(--space-xs);
+      color: var(--on-surface);
+    }
+
+    /* Two-column asymmetric grid */
+    .split-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      align-items: start;
+    }
+    .atlas-workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      align-items: start;
+    }
+
+    /* Shared Leaflet Map Shell */
+    .atlas-card {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+    }
+    .atlas-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--outline-variant);
+      margin-bottom: var(--space-sm);
+    }
+    .atlas-title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .atlas-title {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: var(--subhead-size);
+      margin: 0;
+    }
+    .atlas-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+    .btn-secondary, .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      border-radius: var(--rounded);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  color var(--dur-micro) var(--ease-out);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--secondary);
+    }
+    .btn-secondary {
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      border: var(--card-border);
+    }
+    .btn-secondary:hover {
+      background: var(--surface-container);
+    }
+    .btn-secondary.is-on {
+      background: var(--secondary);
+      color: var(--on-primary);
+    }
+
+    .map-stage {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 400px;
+      min-height: 400px;
+      background: var(--map-ocean);
+      border: var(--card-border);
+      border-radius: var(--rounded);
+      overflow: hidden;
+    }
+    #med-map {
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+      background: var(--map-ocean);
+    }
+    .leaflet-container {
+      background: var(--map-ocean);
+      font-family: var(--font-body);
+    }
+    .map-caption {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      margin-top: var(--space-sm);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+    .route-filter-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-sm);
+    }
+    .route-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-sm);
+      border: var(--card-border);
+      border-radius: var(--rounded);
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .route-chip.is-active {
+      background: var(--surface-container);
+      box-shadow: inset 0 -2px 0 0 var(--primary);
+    }
+    .swatch-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .swatch-j1 { background: var(--data-1); }
+    .swatch-council { background: var(--data-2); }
+    .swatch-j2 { background: var(--data-3); }
+    .swatch-j3 { background: var(--data-4); }
+    .swatch-rome { background: var(--data-5); }
+
+    /* Station Dossier (active waypoint detail right under map) */
+    .station-detail {
+      margin-top: var(--space-md);
+      background: var(--surface-container);
+      border-top: var(--section-rule);
+      padding: var(--space-md);
+      border-radius: 0 0 var(--rounded) var(--rounded);
+    }
+    .station-detail-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+    }
+    .station-detail-title {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: var(--subhead-size);
+      margin: 0;
+    }
+    .tag-warm {
+      background: var(--tag-warm-bg);
+      color: var(--tertiary);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--rounded);
+      display: inline-block;
+    }
+    .tag-slate {
+      background: var(--surface-container-high);
+      color: var(--secondary);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 600;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--rounded);
+      display: inline-block;
+    }
+
+    /* Waypoint Cards Column */
+    .waypoint-list {
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .waypoint-card {
+      width: 100%;
+      text-align: left;
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: var(--space-md);
+      align-items: start;
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out);
+    }
+    .waypoint-card:hover {
+      background: var(--surface-container);
+    }
+    .waypoint-card.is-selected {
+      background: var(--surface-container-low);
+      box-shadow: inset 4px 0 0 0 var(--primary-container), 0 0 0 1px var(--outline);
+    }
+    .wp-num {
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: var(--label-size);
+      color: var(--secondary);
+      background: var(--surface-container);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--badge-radius);
+      margin-top: var(--space-xs);
+    }
+    .waypoint-card.is-selected .wp-num {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    .wp-title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-xs);
+    }
+    .wp-name {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--on-surface);
+    }
+    .wp-ref {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--secondary);
+      font-weight: 600;
+    }
+    .wp-summary {
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Scripture Parallel Comparison */
+    .scripture-section {
+      margin-bottom: var(--space-xl);
+    }
+    .scripture-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .scripture-tab-btn {
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      border: var(--card-border);
+      border-radius: var(--rounded);
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .scripture-tab-btn:hover {
+      background: var(--surface-container);
+    }
+    .scripture-tab-btn.is-active {
+      background: var(--secondary);
+      color: var(--on-primary);
+    }
+    .parallel-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+    .scripture-card {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .scripture-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      border-bottom: 1px solid var(--outline-variant);
+      padding-bottom: var(--space-sm);
+    }
+    .scripture-book {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: var(--subhead-size);
+      color: var(--on-surface);
+    }
+    .scripture-quote {
+      font-family: var(--font-headline);
+      font-size: 1.02rem;
+      line-height: 1.75;
+      color: var(--on-surface);
+      margin: 0;
+      padding-left: var(--space-md);
+      border-left: 3px solid var(--primary-container);
+    }
+    .scripture-note {
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+    .synthesis-bar {
+      margin-top: var(--space-md);
+      background: var(--surface-container);
+      border-left: 4px solid var(--secondary);
+      padding: var(--space-md) var(--space-lg);
+      border-radius: 0 var(--rounded) var(--rounded) 0;
+    }
+    .synthesis-bar strong {
+      color: var(--secondary);
+    }
+
+    /* Companion Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+    .companion-card {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .companion-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+    .companion-name {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 1.0625rem;
+      color: var(--on-surface);
+    }
+    .companion-role {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    .companion-desc {
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+
+    /* Overview Chart & Timeline */
+    .chart-wrap {
+      position: relative;
+      min-height: 280px;
+      height: 280px;
+      width: 100%;
+    }
+    .timeline-list {
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .timeline-item {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: var(--space-md);
+      align-items: center;
+    }
+    .timeline-year {
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: var(--label-size);
+      color: var(--tertiary);
+      background: var(--tag-warm-bg);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--badge-radius);
+      white-space: nowrap;
+    }
+    .timeline-title {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 1rem;
+      margin: 0 0 var(--space-xs);
+    }
+    .timeline-desc {
+      font-size: 0.85rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+
+    /* Council Debate Compare & Protocol */
+    .debate-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .debate-card {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+    .debate-card.is-verdict {
+      border-top: 3px solid var(--secondary);
+    }
+    .debate-card.is-challenge {
+      border-top: 3px solid var(--data-4);
+    }
+    .protocol-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .protocol-step {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      min-height: 44px;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .protocol-step:hover {
+      background: var(--surface-container);
+    }
+    .protocol-step.is-active {
+      box-shadow: inset 0 -3px 0 0 var(--primary-container), 0 0 0 1px var(--outline);
+    }
+
+    /* Prison Epistles Explorer */
+    .epistle-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+    .epistle-menu {
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .epistle-btn {
+      width: 100%;
+      text-align: left;
+      min-height: 48px;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .epistle-btn:hover {
+      background: var(--surface-container);
+    }
+    .epistle-btn.is-active {
+      background: var(--primary);
+      color: var(--on-primary);
+      box-shadow: inset 4px 0 0 0 var(--primary-container);
+    }
+    .epistle-viewer {
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+
+    /* Table styling (Briefing style) */
+    .briefing-table-wrap {
+      overflow-x: auto;
+      background: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      margin-bottom: var(--space-xl);
+    }
+    .briefing-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .briefing-table th {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      text-align: left;
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--section-rule);
+      background: var(--surface-container);
+      white-space: nowrap;
+    }
+    .briefing-table td {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--outline-variant);
+      vertical-align: top;
+    }
+    .briefing-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Page Footer Stepper */
+    .page-pager {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      margin-top: var(--space-xl);
+      padding-top: var(--space-md);
+      border-top: var(--section-rule);
+    }
+    .source-footer {
+      margin-top: var(--space-xl);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--outline-variant);
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 960px) {
+      .figure-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .split-grid,
+      .atlas-workspace,
+      .parallel-grid,
+      .debate-grid,
+      .epistle-grid { grid-template-columns: 1fr; }
+      .protocol-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .app-shell { padding: var(--space-md); }
+      .figure-grid { grid-template-columns: 1fr; }
+      .protocol-steps { grid-template-columns: 1fr; }
+      .timeline-item { grid-template-columns: 1fr; gap: var(--space-xs); }
+      .spa-nav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: var(--space-xs);
+      }
+      .nav-tab {
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .map-stage, #med-map {
+        height: 320px;
+        min-height: 320px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell page-grid">
+    <!-- Top Masthead (static per base reset) -->
+    <header class="masthead">
+      <div class="dossier-bar">
+        <div class="dossier-bar-left">
+          <span class="dossier-pill dossier-pill-latin">NEW TESTAMENT DOSSIER</span>
+          <span class="dossier-meta">使徒行傳 13–28 章 · 保羅書信對照 · AD 46–67</span>
+        </div>
+        <span class="dossier-meta" id="header-progress">分頁 01 / 06 · 總覽導言</span>
+      </div>
+      <h1 class="title">使徒保羅宣教旅程全覽圖譜</h1>
+      <p class="standfirst">從敘利亞安提阿差遣出發，跨越塞浦路斯、小亞細亞、馬其頓與亞該亞，歷經耶路撒冷會議與羅馬海難，建立教會並書寫新約書信的歷史與神學探索。</p>
+    </header>
+
+    <!-- Sticky SPA Navigation Bar -->
+    <nav class="spa-nav-wrap" aria-label="使徒保羅宣教旅程分頁導覽">
+      <div class="spa-nav" role="tablist">
+        <button type="button" id="tab-overview" class="nav-tab is-active" role="tab" aria-selected="true" data-tab="overview" onclick="switchTab('overview')">
+          <span class="index-num">01</span>
+          <span>總覽導言</span>
+        </button>
+        <button type="button" id="tab-journey1" class="nav-tab" role="tab" aria-selected="false" data-tab="journey1" onclick="switchTab('journey1')">
+          <span class="index-num">02</span>
+          <span>第一次宣教旅程</span>
+        </button>
+        <button type="button" id="tab-council" class="nav-tab" role="tab" aria-selected="false" data-tab="council" onclick="switchTab('council')">
+          <span class="index-num">03</span>
+          <span>耶路撒冷會議</span>
+        </button>
+        <button type="button" id="tab-journey2" class="nav-tab" role="tab" aria-selected="false" data-tab="journey2" onclick="switchTab('journey2')">
+          <span class="index-num">04</span>
+          <span>第二次宣教旅程</span>
+        </button>
+        <button type="button" id="tab-journey3" class="nav-tab" role="tab" aria-selected="false" data-tab="journey3" onclick="switchTab('journey3')">
+          <span class="index-num">05</span>
+          <span>第三次宣教旅程</span>
+        </button>
+        <button type="button" id="tab-rome" class="nav-tab" role="tab" aria-selected="false" data-tab="rome" onclick="switchTab('rome')">
+          <span class="index-num">06</span>
+          <span>羅馬之行與監獄書信</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Shared Interactive Leaflet Map Host (moved seamlessly into active page mount) -->
+    <div id="shared-atlas-staging" hidden>
+      <div id="shared-atlas-card" class="atlas-card">
+        <div class="atlas-toolbar">
+          <div class="atlas-title-group">
+            <i data-lucide="compass" aria-hidden="true" style="width:18px;height:18px;color:var(--secondary);"></i>
+            <h3 class="atlas-title" id="atlas-card-title">地中海宣教地理圖譜</h3>
+          </div>
+          <div class="atlas-controls">
+            <button type="button" class="btn-secondary" onclick="stepWaypoint(-1)">
+              <i data-lucide="chevron-left" aria-hidden="true" style="width:15px;height:15px;"></i>
+              <span>上一站</span>
+            </button>
+            <button type="button" class="btn-secondary" onclick="stepWaypoint(1)">
+              <span>下一站</span>
+              <i data-lucide="chevron-right" aria-hidden="true" style="width:15px;height:15px;"></i>
+            </button>
+            <button type="button" class="btn-secondary" onclick="resetCurrentMapBounds()">
+              <i data-lucide="maximize-2" aria-hidden="true" style="width:15px;height:15px;"></i>
+              <span>全覽視野</span>
+            </button>
+          </div>
+        </div>
+        <div class="map-stage">
+          <div id="med-map" aria-label="使徒保羅宣教旅程互動向量地圖"></div>
+        </div>
+        <div id="overview-layer-toggles" class="route-filter-strip" hidden>
+          <button type="button" class="route-chip is-active" data-route="journey1" onclick="toggleOverviewRoute('journey1', this)">
+            <span class="swatch-dot swatch-j1"></span>
+            <span>第一次旅程 (AD 46–48)</span>
+          </button>
+          <button type="button" class="route-chip is-active" data-route="council" onclick="toggleOverviewRoute('council', this)">
+            <span class="swatch-dot swatch-council"></span>
+            <span>耶路撒冷會議 (AD 49)</span>
+          </button>
+          <button type="button" class="route-chip is-active" data-route="journey2" onclick="toggleOverviewRoute('journey2', this)">
+            <span class="swatch-dot swatch-j2"></span>
+            <span>第二次旅程 (AD 49–52)</span>
+          </button>
+          <button type="button" class="route-chip is-active" data-route="journey3" onclick="toggleOverviewRoute('journey3', this)">
+            <span class="swatch-dot swatch-j3"></span>
+            <span>第三次旅程 (AD 53–57)</span>
+          </button>
+          <button type="button" class="route-chip is-active" data-route="rome" onclick="toggleOverviewRoute('rome', this)">
+            <span class="swatch-dot swatch-rome"></span>
+            <span>羅馬押解之行 (AD 59–62)</span>
+          </button>
+        </div>
+        <div class="map-caption">
+          <span id="map-status-note">點擊地圖標記或右側站點卡片，檢視經文與事蹟細節</span>
+          <span>Boundaries: Natural Earth (Public Domain)</span>
+        </div>
+        <div id="station-detail-panel" class="station-detail">
+          <div class="station-detail-head">
+            <h4 class="station-detail-title" id="sd-title">請選擇任一站點</h4>
+            <span class="tag-warm" id="sd-ref">—</span>
+          </div>
+          <p id="sd-body" style="margin:0 0 var(--space-xs);font-size:0.9375rem;"></p>
+          <div id="sd-meta" style="display:flex;flex-wrap:wrap;gap:var(--space-xs);align-items:center;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE 1: OVERVIEW ==================== -->
+    <main id="page-viewport">
+      <section id="panel-overview" class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-overview">
+        <div class="dossier-bar">
+          <div class="dossier-bar-left">
+            <span class="dossier-pill">01 · 全景總覽</span>
+            <span class="dossier-meta">使徒行傳 9, 11, 13–28 章 · AD 33–67</span>
+          </div>
+          <span class="dossier-meta">大馬色蒙召 → 安提阿基地 → 普世宣教</span>
+        </div>
+
+        <div class="section-head">
+          <h2 class="section-title">外邦人的使徒：宣教全景與差傳基地</h2>
+          <p class="section-deck">從律法熱心的法利賽人掃羅，到大馬色路上蒙主揀選；由敘利亞安提阿教會差遣出發，將福音從猶太地推向羅馬帝國核心。</p>
+        </div>
+
+        <!-- KPI Summary Strip -->
+        <div class="figure-grid">
+          <div class="figure-card">
+            <span class="label">宣教與押解階段</span>
+            <div class="value">4 + 1</div>
+            <div class="sub">三次宣教、一次會議、一次羅馬航程</div>
+          </div>
+          <div class="figure-card">
+            <span class="label">追蹤路線站點</span>
+            <div class="value">31 站</div>
+            <div class="sub">橫跨亞西亞、馬其頓、希臘與義大利</div>
+          </div>
+          <div class="figure-card">
+            <span class="label">保羅書信全集</span>
+            <div class="value">13 卷</div>
+            <div class="sub">含旅行書信、監獄書信與教牧書信</div>
+          </div>
+          <div class="figure-card">
+            <span class="label">活躍年份跨度</span>
+            <div class="value">約 20 年</div>
+            <div class="sub">AD 46 安提阿啟程至 AD 67 羅馬殉道</div>
+          </div>
+        </div>
+
+        <!-- Calling & Antioch Base -->
+        <div class="split-grid">
+          <article class="figure-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-sm);margin-bottom:var(--space-sm);">
+              <span class="tag-warm">徒 22:3–21 · 弗 3:7–8</span>
+              <span class="dossier-meta">蒙召背景</span>
+            </div>
+            <h3 style="font-family:var(--font-headline);margin:0 0 var(--space-xs);font-size:var(--subhead-size);">大馬色光照：從逼迫者到外邦使徒</h3>
+            <p style="margin:0 0 var(--space-sm);font-size:0.9375rem;">
+              保羅原名掃羅，生於基利家的大數，具備羅馬生來民籍（徒 22:28），在耶路撒冷迦瑪列門下按嚴緊律法受教（徒 22:3）。他曾極力逼迫教會，並在司提反被害時站在旁邊看守衣裳（徒 22:20）。
+            </p>
+            <p style="margin:0;font-size:0.9375rem;color:var(--on-surface-variant);">
+              正午往大馬色捉拿信徒途中，天上大光四面照著他，主耶穌親自向他顯現並差遣他：「你去罷，我要差你遠遠的往外邦人那裡去」（徒 22:21）。保羅自言比眾聖徒中最小的還小，卻蒙恩把基督測不透的豐富傳給外邦人（弗 3:8）。
+            </p>
+          </article>
+
+          <article class="figure-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-sm);margin-bottom:var(--space-sm);">
+              <span class="tag-slate">徒 11:20–30 · 徒 13:1–3</span>
+              <span class="dossier-meta">宣教總部</span>
+            </div>
+            <h3 style="font-family:var(--font-headline);margin:0 0 var(--space-xs);font-size:var(--subhead-size);">敘利亞安提阿：跨文化差傳基地</h3>
+            <p style="margin:0 0 var(--space-sm);font-size:0.9375rem;">
+              居比路和古利奈信徒首先在安提阿向希利尼人傳講主耶穌，耶路撒冷教會遂打發巴拿巴前往牧養（徒 11:20–22）。巴拿巴特往大數尋回掃羅，兩人與教會同聚一年教訓許多人，「門徒稱為基督徒、是從安提阿起首」（徒 11:26）。
+            </p>
+            <p style="margin:0;font-size:0.9375rem;color:var(--on-surface-variant);">
+              在安提阿多元族群的領袖群（巴拿巴、西面、路求、馬念、掃羅）禁食事奉主時，聖靈親自吩咐：「要為我分派巴拿巴和掃羅，去作我召他們所作的工」（徒 13:2），揭開普世宣教序幕。
+            </p>
+          </article>
+        </div>
+
+        <!-- Overview Atlas + Interactive Waypoints -->
+        <div class="atlas-workspace">
+          <div id="map-slot-overview"></div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
+              <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">全景戰略樞紐站點</h3>
+              <span class="dossier-meta">點擊連動地圖</span>
+            </div>
+            <div id="waypoints-overview" class="waypoint-list"></div>
+          </div>
+        </div>
+
+        <!-- Chart + Interactive Timeline Navigator -->
+        <div class="split-grid">
+          <div class="figure-card">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-sm);margin-bottom:var(--space-sm);">
+              <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">各時期宣教站點與關聯書信分布</h3>
+              <span class="dossier-meta">使徒行傳與新約正典統計</span>
+            </div>
+            <div id="overview-chart-wrap" class="chart-wrap">
+              <canvas id="overviewChart" aria-label="保羅各宣教時期站點與書信數量統計圖"></canvas>
+            </div>
+            <p style="margin:var(--space-sm) 0 0;font-size:0.8125rem;color:var(--on-surface-variant);">
+              註：第一次旅程含《加拉太書》（南加拉太說）；第二次含《帖前、帖後》；第三次含《林前、林後、羅馬書》；羅馬時期含四卷監獄書信及終末《提摩太後書》（另含同工牧養書信《提前、提多》於後期階段）。
+            </p>
+          </div>
+
+          <div class="figure-card">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-sm);margin-bottom:var(--space-sm);">
+              <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">宣教歷史時間軸導引</h3>
+              <span class="dossier-meta">點擊直接跳轉分頁</span>
+            </div>
+            <div class="timeline-list" id="overview-timeline"></div>
+          </div>
+        </div>
+
+        <!-- Overview Scripture & Companions -->
+        <div class="scripture-section">
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">全景經文對照：大馬色呼召與外邦奧秘</h3>
+          </div>
+          <div id="scripture-area-overview"></div>
+        </div>
+
+        <div>
+          <div class="section-head" style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-sm);">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">核心宣教同工總覽</h3>
+            <span class="dossier-meta">各分頁將細探同工事蹟</span>
+          </div>
+          <div id="companions-overview" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE 2: FIRST JOURNEY ==================== -->
+      <section id="panel-journey1" class="tab-panel" role="tabpanel" aria-labelledby="tab-journey1">
+        <div class="dossier-bar">
+          <div class="dossier-bar-left">
+            <span class="dossier-pill">02 · 第一次宣教旅程</span>
+            <span class="dossier-meta">AD 46–48 · 使徒行傳 13–14 章 · 加拉太書</span>
+          </div>
+          <span class="dossier-meta">團隊：巴拿巴、保羅、馬可</span>
+        </div>
+
+        <div class="section-head">
+          <h2 class="section-title">突破猶太疆界：塞浦路斯與南加拉太開拓</h2>
+          <p class="section-deck">聖靈在安提阿親自差遣巴拿巴與掃羅；歷經帕弗方伯歸信（改稱保羅）、馬可中途離開，於彼西底安提阿、以哥念、路司得與特庇建立首批外邦眾教會。</p>
+        </div>
+
+        <div class="atlas-workspace">
+          <div id="map-slot-journey1"></div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
+              <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">旅程路線節點卡片（7 站）</h3>
+              <span class="dossier-meta">點擊定位與詳情</span>
+            </div>
+            <div id="waypoints-journey1" class="waypoint-list"></div>
+          </div>
+        </div>
+
+        <div class="scripture-section">
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">聖經經文對照：《使徒行傳 13–14 章》×《加拉太書》</h3>
+            <p class="section-deck" style="font-size:0.9rem;">加拉太書寫給南加拉太眾教會（彼西底安提阿、以哥念、路司得、特庇），保衛「因信稱義、不靠割禮」的純淨福音。</p>
+          </div>
+          <div id="scripture-area-journey1"></div>
+        </div>
+
+        <div>
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">第一次旅程同工團隊</h3>
+          </div>
+          <div id="companions-journey1" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE 3: JERUSALEM COUNCIL ==================== -->
+      <section id="panel-council" class="tab-panel" role="tabpanel" aria-labelledby="tab-council">
+        <div class="dossier-bar">
+          <div class="dossier-bar-left">
+            <span class="dossier-pill">03 · 耶路撒冷會議</span>
+            <span class="dossier-meta">約 AD 49 · 使徒行傳 15 章 · 加拉太書 2 章</span>
+          </div>
+          <span class="dossier-meta">外邦信徒得救與割禮問題之歷史決議</span>
+        </div>
+
+        <div class="section-head">
+          <h2 class="section-title">恩典抑或律法：外邦信徒歸主的關鍵公會</h2>
+          <p class="section-deck">當猶太來的人主張「若不受割禮不能得救」，保羅與巴拿巴上耶路撒冷見使徒和長老，確立「得救本乎主恩，不將律法重軛放在外邦門徒頸項上」的大憲章。</p>
+        </div>
+
+        <!-- Debate Stances Comparison -->
+        <div class="debate-grid">
+          <div class="debate-card is-challenge">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xs);">
+              <span class="tag-warm">律法主義挑戰 · 徒 15:1, 5</span>
+              <span class="dossier-meta">法利賽門徒主張</span>
+            </div>
+            <h3 style="font-family:var(--font-headline);margin:0 0 var(--space-xs);">「必須給外邦人行割禮，守摩西律法」</h3>
+            <p style="margin:0;font-size:0.9375rem;color:var(--on-surface-variant);">
+              部分從猶太下來的人在安提阿教訓弟兄，又有法利賽教門的信徒在耶路撒冷起來堅持，外邦人歸信基督後仍須先受肉身割禮、納入猶太律法儀文體系方能得救。保羅在《加拉太書》2:4 稱這類強逼行徑窺探基督裡的自由。
+            </p>
+          </div>
+
+          <div class="debate-card is-verdict">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xs);">
+              <span class="tag-slate">公會福音決議 · 徒 15:8–11, 28</span>
+              <span class="dossier-meta">彼得、保羅與雅各共識</span>
+            </div>
+            <h3 style="font-family:var(--font-headline);margin:0 0 var(--space-xs);">「我們得救，乃是因主耶穌的恩，和他們一樣」</h3>
+            <p style="margin:0;font-size:0.9375rem;color:var(--on-surface-variant);">
+              彼得見證神早已賜聖靈給外邦人、藉信潔淨人心而不分彼此；雅各引眾先知預言定奪：不可難為歸服神的外邦人，聖靈和使徒定意不將別的重擔加給他們，只須在生活倫理與餐桌團契上遵守四項基本禁戒（徒 15:20, 29）。
+            </p>
+          </div>
+        </div>
+
+        <!-- Interactive 4-Step Council Protocol -->
+        <div style="margin-bottom:var(--space-xl);">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--space-sm);">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">公會決議四部曲（點擊檢視細節）</h3>
+            <span class="dossier-meta">徒 15:1–35 議程追蹤</span>
+          </div>
+          <div class="protocol-steps" id="council-protocol-steps"></div>
+          <div id="council-protocol-detail" class="aside-box"></div>
+        </div>
+
+        <div class="atlas-workspace">
+          <div id="map-slot-council"></div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
+              <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">公會往返與公函傳遞節點（4 站）</h3>
+              <span class="dossier-meta">點擊連動地圖</span>
+            </div>
+            <div id="waypoints-council" class="waypoint-list"></div>
+          </div>
+        </div>
+
+        <div class="scripture-section">
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">聖經經文對照：《使徒行傳 15 章》×《加拉太書 2 章》×《羅馬書 2–3 章》</h3>
+          </div>
+          <div id="scripture-area-council"></div>
+        </div>
+
+        <div>
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">耶路撒冷會議關鍵人物與使者</h3>
+          </div>
+          <div id="companions-council" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE 4: SECOND JOURNEY ==================== -->
+      <section id="panel-journey2" class="tab-panel" role="tabpanel" aria-labelledby="tab-journey2">
+        <div class="dossier-bar">
+          <div class="dossier-bar-left">
+            <span class="dossier-pill">04 · 第二次宣教旅程</span>
+            <span class="dossier-meta">AD 49–52 · 使徒行傳 15:36–18:22 · 帖撒羅尼迦前後書</span>
+          </div>
+          <span class="dossier-meta">團隊：保羅、西拉、提摩太、路加、亞居拉與百基拉</span>
+        </div>
+
+        <div class="section-head">
+          <h2 class="section-title">跨入歐洲大陸：馬其頓呼聲與希臘諸城事工</h2>
+          <p class="section-deck">因馬可意見分歧後，保羅與西拉北上堅固教會並接納提摩太；聖靈禁止亞西亞傳道，於特羅亞領受馬其頓異象，將福音帶入腓立比、帖撒羅尼迦、雅典與哥林多。</p>
+        </div>
+
+        <div class="atlas-workspace">
+          <div id="map-slot-journey2"></div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
+              <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">旅程路線節點卡片（8 站）</h3>
+              <span class="dossier-meta">點擊定位與詳情</span>
+            </div>
+            <div id="waypoints-journey2" class="waypoint-list"></div>
+          </div>
+        </div>
+
+        <div class="scripture-section">
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">聖經經文對照：《使徒行傳 16–18 章》×《帖撒羅尼迦書信》</h3>
+            <p class="section-deck" style="font-size:0.9rem;">保羅在哥林多的一年半期間（徒 18:11），牽掛剛受逼迫的馬其頓教會，差派提摩太探訪並寫下新約最早一批書信：《帖撒羅尼迦前後書》。</p>
+          </div>
+          <div id="scripture-area-journey2"></div>
+        </div>
+
+        <div>
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">第二次旅程同工團隊</h3>
+          </div>
+          <div id="companions-journey2" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE 5: THIRD JOURNEY ==================== -->
+      <section id="panel-journey3" class="tab-panel" role="tabpanel" aria-labelledby="tab-journey3">
+        <div class="dossier-bar">
+          <div class="dossier-bar-left">
+            <span class="dossier-pill">05 · 第三次宣教旅程</span>
+            <span class="dossier-meta">AD 53–57 · 使徒行傳 18:23–21:16 · 林前、林後、羅馬書</span>
+          </div>
+          <span class="dossier-meta">以弗所三年深耕 · 亞西亞福音遍傳 · 捐項往耶路撒冷</span>
+        </div>
+
+        <div class="section-head">
+          <h2 class="section-title">以弗所三年深耕與神學書信高峰期</h2>
+          <p class="section-deck">保羅以以弗所為中心服事三年，使亞西亞一切居民都聽見主的道，並引發銀匠亞底米廟騷亂；期間寫作哥林多前後書與羅馬書，最後於米利都向長老流淚辭別赴耶路撒冷。</p>
+        </div>
+
+        <div class="atlas-workspace">
+          <div id="map-slot-journey3"></div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
+              <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">旅程路線節點卡片（6 站）</h3>
+              <span class="dossier-meta">點擊定位與詳情</span>
+            </div>
+            <div id="waypoints-journey3" class="waypoint-list"></div>
+          </div>
+        </div>
+
+        <!-- Third Journey Major Epistles Table -->
+        <div style="margin-bottom:var(--space-xl);">
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">第三次旅程三大巨著寫作背景對照</h3>
+          </div>
+          <div class="briefing-table-wrap">
+            <table class="briefing-table">
+              <thead>
+                <tr>
+                  <th>書卷名稱</th>
+                  <th>寫作地點與時期</th>
+                  <th>關聯使徒行傳背景</th>
+                  <th>核心牧養與神學主題</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>《哥林多前書》</strong></td>
+                  <td>以弗所（約 AD 55）</td>
+                  <td>徒 19 章（推喇奴學房期間，見聞革來氏家報告）</td>
+                  <td>教會合一、十字架智慧、身子是聖靈的殿與活祭、屬靈恩賜與愛之頌（林前 13）、復活盼望。</td>
+                </tr>
+                <tr>
+                  <td><strong>《哥林多後書》</strong></td>
+                  <td>馬其頓（約 AD 55–56）</td>
+                  <td>徒 20:1–2（以弗所亂定後離去，經特羅亞往馬其頓）</td>
+                  <td>軟弱中顯大能的瓦器職分、與神和好的福音、鼓勵完成供給耶路撒冷聖徒的捐項。</td>
+                </tr>
+                <tr>
+                  <td><strong>《羅馬書》</strong></td>
+                  <td>哥林多（約 AD 57）</td>
+                  <td>徒 20:2–3（於希臘住三個月過冬，準備赴耶路撒冷再往羅馬與西班牙）</td>
+                  <td>全面闡述因信稱義、心裡的割禮在乎靈不在乎儀文（羅 2:28–29）、亞伯拉罕因信稱義（羅 4:3）與猶太外邦合一。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="scripture-section">
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">聖經經文對照：《使徒行傳 18–20 章》×《羅馬書》</h3>
+          </div>
+          <div id="scripture-area-journey3"></div>
+        </div>
+
+        <div>
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">第三次旅程與捐項護送團同工</h3>
+          </div>
+          <div id="companions-journey3" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PAGE 6: JOURNEY TO ROME & PRISON EPISTLES ==================== -->
+      <section id="panel-rome" class="tab-panel" role="tabpanel" aria-labelledby="tab-rome">
+        <div class="dossier-bar">
+          <div class="dossier-bar-left">
+            <span class="dossier-pill">06 · 羅馬之行與監獄書信</span>
+            <span class="dossier-meta">AD 57–67 · 使徒行傳 21–28 章 · 弗、腓、西、門、提後</span>
+          </div>
+          <span class="dossier-meta">受審上告該撒 → 米利大海難 → 羅馬軟禁傳道</span>
+        </div>
+
+        <div class="section-head">
+          <h2 class="section-title">帶鎖鍊的使者：受審、海難與羅馬監獄書信</h2>
+          <p class="section-deck">在耶路撒冷與該撒利亞經歷多次審訊並上告於該撒；歷經十四日風暴擱淺米利大島，終抵羅馬在看守下傳道兩年，寫下四封監獄書信與最後的提摩太後書。</p>
+        </div>
+
+        <div class="atlas-workspace">
+          <div id="map-slot-rome"></div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
+              <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">押解航線與審訊節點（6 站）</h3>
+              <span class="dossier-meta">點擊定位與詳情</span>
+            </div>
+            <div id="waypoints-rome" class="waypoint-list"></div>
+          </div>
+        </div>
+
+        <!-- Interactive Prison Epistles + 2 Timothy Explorer -->
+        <div style="margin-bottom:var(--space-xl);">
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">互動書信探索器：四封監獄書信與提摩太後書</h3>
+            <p class="section-deck" style="font-size:0.9rem;">點擊左側書卷，檢視保羅在捆鎖中所寫書信的寫作背景、受書教會、送信同工與核心神學信息。</p>
+          </div>
+          <div class="epistle-grid">
+            <div class="epistle-menu" id="epistle-menu"></div>
+            <div class="epistle-viewer" id="epistle-viewer"></div>
+          </div>
+        </div>
+
+        <div class="scripture-section">
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">聖經經文對照：《使徒行傳 27–28 章》×《以弗所書》×《腓利門書》</h3>
+          </div>
+          <div id="scripture-area-rome"></div>
+        </div>
+
+        <div>
+          <div class="section-head">
+            <h3 style="font-family:var(--font-headline);margin:0;font-size:var(--subhead-size);">囚禁與羅馬時期忠心同工</h3>
+          </div>
+          <div id="companions-rome" class="card-grid"></div>
+        </div>
+      </section>
+
+      <!-- Bottom Pager -->
+      <div class="page-pager" id="page-pager">
+        <button type="button" class="btn-secondary" id="pager-prev" onclick="stepTab(-1)">← 上一分頁</button>
+        <span class="dossier-meta" id="pager-indicator">01 / 06</span>
+        <button type="button" class="btn-primary" id="pager-next" onclick="stepTab(1)">下一分頁 →</button>
+      </div>
+
+      <footer class="source-footer">
+        <span>資料來源：《聖經》繁體和合本（使徒行傳、以弗所書、加拉太書、羅馬書、帖撒羅尼迦後書、腓利門書）及〈新約聖經中「肉體」的神學意涵〉研究摘要。</span>
+        <span>使徒保羅宣教旅程互動研究圖譜</span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // ==================== DATA STORE ====================
+    var TAB_ORDER = ['overview', 'journey1', 'council', 'journey2', 'journey3', 'rome'];
+
+    var TAB_META = {
+      overview: { num: '01', name: '總覽導言', mapTitle: '地中海全覽：保羅宣教五大階段路線圖', colorVar: '--data-1' },
+      journey1: { num: '02', name: '第一次宣教旅程', mapTitle: '第一次旅程路線（AD 46–48 · 塞浦路斯與南加拉太）', colorVar: '--data-1' },
+      council:  { num: '03', name: '耶路撒冷會議', mapTitle: '耶路撒冷公會往返路線（AD 49 · 徒 15 章）', colorVar: '--data-2' },
+      journey2: { num: '04', name: '第二次宣教旅程', mapTitle: '第二次旅程路線（AD 49–52 · 馬其頓與亞該亞）', colorVar: '--data-3' },
+      journey3: { num: '05', name: '第三次宣教旅程', mapTitle: '第三次旅程路線（AD 53–57 · 以弗所深耕與希臘）', colorVar: '--data-4' },
+      rome:     { num: '06', name: '羅馬之行與監獄書信', mapTitle: '羅馬押解航線（AD 59–62 · 該撒利亞至羅馬）', colorVar: '--data-5' }
+    };
+
+    var ROUTE_STYLES = {
+      journey1: { colorVar: '--data-1', dash: null, label: '第一次旅程' },
+      council:  { colorVar: '--data-2', dash: '6 5', label: '耶路撒冷會議' },
+      journey2: { colorVar: '--data-3', dash: null, label: '第二次旅程' },
+      journey3: { colorVar: '--data-4', dash: null, label: '第三次旅程' },
+      rome:     { colorVar: '--data-5', dash: '8 4', label: '羅馬之行' }
+    };
+
+    var WAYPOINTS = {
+      overview: [
+        {
+          name: '大馬色（蒙召之地）',
+          region: '敘利亞 · 現代大馬士革',
+          lat: 33.5138, lng: 36.2765,
+          ref: '徒 22:6–16',
+          summary: '掃羅追逼信徒至大馬色途中遇見復活主大光照射，從亞拿尼亞領受外邦使徒呼召並受洗。',
+          tags: ['外邦使徒蒙召', '轉折起點'],
+          jumpTab: 'journey1'
+        },
+        {
+          name: '敘利亞安提阿（宣教基地）',
+          region: '敘利亞 · 現代安塔基亞',
+          lat: 36.2021, lng: 36.1606,
+          ref: '徒 11:26, 13:1–3',
+          summary: '門徒首稱「基督徒」之城。巴拿巴與掃羅同工一年後，在禁食禱告中受聖靈差遣展開三次宣教旅程。',
+          tags: ['差傳總部', '三次旅程起點'],
+          jumpTab: 'journey1'
+        },
+        {
+          name: '耶路撒冷（使徒母會與公會）',
+          region: '猶太地 · 耶路撒冷',
+          lat: 31.7683, lng: 35.2137,
+          ref: '徒 15:1–29, 21:27',
+          summary: '主後49年召開耶路撒冷會議確立外邦人因恩得救不必受割禮；日後保羅亦在此被捕受審。',
+          tags: ['AD 49 公會決議', '徒 21 被捕'],
+          jumpTab: 'council'
+        },
+        {
+          name: '腓立比（歐洲福音首站）',
+          region: '馬其頓 · 羅馬駐防城',
+          lat: 41.0128, lng: 24.2869,
+          ref: '徒 16:12–40',
+          summary: '應馬其頓異象渡海登陸歐洲，呂底亞全家受洗；保羅與西拉在監中唱詩禱告，地震後禁卒全家歸主。',
+          tags: ['歐洲首座教會', '監獄神蹟'],
+          jumpTab: 'journey2'
+        },
+        {
+          name: '以弗所（亞西亞宣教中心）',
+          region: '亞西亞 · 現代塞爾丘克附近',
+          lat: 37.9408, lng: 27.3414,
+          ref: '徒 19:1–41',
+          summary: '第三次旅程駐留約三年深耕真理，福音遍傳亞西亞；日後成為《以弗所書》及亞西亞眾教會核心。',
+          tags: ['三年深耕', '《林前》寫作地'],
+          jumpTab: 'journey3'
+        },
+        {
+          name: '羅馬（軟禁傳道與監獄書信）',
+          region: '義大利 · 羅馬',
+          lat: 41.9028, lng: 12.4964,
+          ref: '徒 28:16–31',
+          summary: '保羅上告該撒、歷經海難抵達帝國首都，在看守下傳講神國並書寫四封監獄書信。',
+          tags: ['監獄書信', '帝國首都見證'],
+          jumpTab: 'rome'
+        }
+      ],
+      journey1: [
+        {
+          name: '敘利亞安提阿 → 西流基',
+          region: '敘利亞沿海港口',
+          lat: 36.1228, lng: 35.9219,
+          ref: '徒 13:1–4',
+          summary: '安提阿教會先知教師禁食禱告、按手差遣巴拿巴與掃羅，兩人下到海口西流基乘船出發。',
+          tags: ['聖靈差遣', '起航港口']
+        },
+        {
+          name: '塞浦路斯・撒拉米',
+          region: '塞浦路斯東岸',
+          lat: 35.1847, lng: 33.9025,
+          ref: '徒 13:5',
+          summary: '巴拿巴的故鄉居比路（徒 4:36）。使徒在猶太人各會堂傳講神的道，並有約翰（馬可）作幫手。',
+          tags: ['會堂先行策略', '馬可同行']
+        },
+        {
+          name: '塞浦路斯・帕弗',
+          region: '塞浦路斯西岸首府',
+          lat: 34.7754, lng: 32.4218,
+          ref: '徒 13:6–12',
+          summary: '遇見行法術敵擋真道的巴耶穌（以呂馬）；掃羅又名「保羅」，被聖靈充滿責備以呂馬暫時眼瞎，方伯士求保羅歸信。',
+          tags: ['掃羅改稱保羅', '方伯歸信']
+        },
+        {
+          name: '旁非利亞・別加',
+          region: '小亞細亞南岸',
+          lat: 36.9608, lng: 30.8533,
+          ref: '徒 13:13',
+          summary: '從帕弗坐船抵小亞細亞登陸別加；年輕的約翰馬可於此離開團隊返回耶路撒冷，埋下日後第二次旅程爭論伏筆。',
+          tags: ['登陸安納托利亞', '馬可折返']
+        },
+        {
+          name: '彼西底的安提阿',
+          region: '小亞細亞內陸高原',
+          lat: 38.3045, lng: 31.1897,
+          ref: '徒 13:14–52',
+          summary: '安息日會堂受邀講論以色列救贖史與耶穌復活；下個安息日合城來聽，猶太人嫉妒挑唆逼迫，使徒轉向外邦人，門徒滿心喜樂。',
+          tags: ['首篇長篇講道', '轉向外邦人']
+        },
+        {
+          name: '以哥念',
+          region: '南加拉太（現代孔亞）',
+          lat: 37.8746, lng: 32.4932,
+          ref: '徒 14:1–6',
+          summary: '猶太人與希利尼人信的很多，主藉他們的手行神蹟證明恩道；城裡眾人分黨，官長與反對者圖謀用石頭打他們。',
+          tags: ['放膽講道', '神蹟印證']
+        },
+        {
+          name: '路司得與特庇（原路回訪返航）',
+          region: '呂高尼地區',
+          lat: 37.5750, lng: 32.2030,
+          ref: '徒 14:8–28',
+          summary: '路司得醫治生來瘸腿者被誤認神明，隨即遭石頭打傷拖出城外卻復起；往特庇多得門徒後原路回訪，在各教會選立長老，經亞大利返安提阿。',
+          tags: ['遭石擊不屈', '選立長老']
+        }
+      ],
+      council: [
+        {
+          name: '敘利亞安提阿（爭議發端）',
+          region: '敘利亞',
+          lat: 36.2021, lng: 36.1606,
+          ref: '徒 15:1–2',
+          summary: '有幾個人從猶太下來教訓弟兄「若不受割禮不能得救」，保羅與巴拿巴極力分爭辯論，教會定意差派代表赴耶路撒冷。',
+          tags: ['割禮爭議', '保衛福音真理']
+        },
+        {
+          name: '腓尼基與撒瑪利亞（沿途報喜）',
+          region: '黎凡特走廊',
+          lat: 33.2705, lng: 35.2038,
+          ref: '徒 15:3',
+          summary: '前往耶路撒冷途中經過腓尼基和撒瑪利亞，隨處傳說外邦人歸主的事，叫眾弟兄都甚歡喜。',
+          tags: ['外邦歸主見證', '教會歡喜']
+        },
+        {
+          name: '耶路撒冷（使徒與長老會議）',
+          region: '猶太地',
+          lat: 31.7683, lng: 35.2137,
+          ref: '徒 15:4–29',
+          summary: '彼得見證神藉信潔淨外邦人、雅各據先知書作出決議：外邦信徒不必受割禮，只須禁戒偶像污穢、姦淫、勒死牲畜與血，並致信眾外邦教會。',
+          tags: ['因恩得救決議', '四項生活禁戒']
+        },
+        {
+          name: '重返安提阿（宣讀使徒公函）',
+          region: '敘利亞',
+          lat: 36.2021, lng: 36.1606,
+          ref: '徒 15:30–35',
+          summary: '耶路撒冷揀選猶大和西拉陪同保羅、巴拿巴下安提阿，聚集眾人交付書信；眾人念了信上安慰的話就歡喜堅固。',
+          tags: ['合一團契', '猶大西拉同行']
+        }
+      ],
+      journey2: [
+        {
+          name: '安提阿 → 基利家 → 路司得',
+          region: '敘利亞與小亞細亞南部',
+          lat: 37.5750, lng: 32.2030,
+          ref: '徒 15:40–16:5',
+          summary: '保羅與巴拿巴因馬可分道，保羅揀選西拉走遍敘利亞與基利家；至特庇與路司得接納年輕門徒提摩太同工，眾教會信心越發堅固。',
+          tags: ['保羅西拉團隊', '提摩太加入']
+        },
+        {
+          name: '特羅亞（馬其頓異象）',
+          region: '愛琴海東岸港口',
+          lat: 39.7575, lng: 26.1508,
+          ref: '徒 16:6–10',
+          summary: '聖靈禁止在亞西亞講道、耶穌的靈不許往庇推尼去；夜間異象見馬其頓人站著求「請你過到馬其頓來幫助我們」，路加在此加入（「我們」）。',
+          tags: ['聖靈引導轉向', '跨洲呼聲']
+        },
+        {
+          name: '腓立比（監獄神蹟與呂底亞）',
+          region: '馬其頓 · 歐洲第一城',
+          lat: 41.0128, lng: 24.2869,
+          ref: '徒 16:11–40',
+          summary: '賣紫色布疋的呂底亞全家受洗；趕逐使女巫鬼遭棍打下內監，半夜禱告唱詩時地大震動監門全開，禁卒全家問得救之道並受洗。',
+          tags: ['呂底亞之家', '半夜讚美地震']
+        },
+        {
+          name: '帖撒羅尼迦',
+          region: '馬其頓首府',
+          lat: 40.6401, lng: 22.9444,
+          ref: '徒 17:1–10',
+          summary: '連續三個安息日在會堂引聖經辯論基督受害復活，許多虔誠希利尼人與尊貴婦女信從，後因忌恨攪擾連夜被送往庇哩亞。',
+          tags: ['基督受苦復活', '《帖前後》受書教會']
+        },
+        {
+          name: '庇哩亞',
+          region: '馬其頓內陸',
+          lat: 40.5214, lng: 22.2025,
+          ref: '徒 17:10–14',
+          summary: '庇哩亞人賢於帖撒羅尼迦人，甘心領受這道、天天考查聖經要曉得這道是與不是，許多人相信。',
+          tags: ['天天考查聖經', '敬虔回應']
+        },
+        {
+          name: '雅典（亞略巴古講道）',
+          region: '亞該亞 · 希臘文化中心',
+          lat: 37.9722, lng: 23.7233,
+          ref: '徒 17:16–34',
+          summary: '見滿城偶像心裡著急，與以彼古羅和斯多亞兩門學士辯論，站在亞略巴古（戰神山）從「未識之神」切入宣講創造主與死人復活。',
+          tags: ['戰神山護教', '文化對話']
+        },
+        {
+          name: '哥林多（十八個月深耕）',
+          region: '亞該亞首府',
+          lat: 37.9061, lng: 22.8794,
+          ref: '徒 18:1–17',
+          summary: '與同業織帳棚的亞居拉、百基拉同住作工，住了一年零六個月；主夜間異象安慰「只管講不要閉口」，巡撫迦流公堂駁回控訴。在此書寫《帖前後》。',
+          tags: ['織帳棚事奉', '駐留18個月']
+        },
+        {
+          name: '以弗所（短停）→ 返安提阿',
+          region: '愛琴海至敘利亞',
+          lat: 37.9408, lng: 27.3414,
+          ref: '徒 18:18–22',
+          summary: '在堅革哩剪髮還願，將亞居拉百基拉留在以弗所，自己進會堂辯論後開船在該撒利亞登岸，上耶路撒冷問安再回安提阿。',
+          tags: ['預備第三程', '亞居拉留守']
+        }
+      ],
+      journey3: [
+        {
+          name: '安提阿 → 加拉太與弗呂家',
+          region: '小亞細亞內陸',
+          lat: 38.3045, lng: 31.1897,
+          ref: '徒 18:23',
+          summary: '在安提阿住了些日子便再度起行，挨次經過加拉太和弗呂家地方，堅固眾門徒的信心。',
+          tags: ['牧養堅固', '再訪內陸教會']
+        },
+        {
+          name: '以弗所（三年深耕與銀匠騷亂）',
+          region: '亞西亞省會',
+          lat: 37.9408, lng: 27.3414,
+          ref: '徒 19:1–41',
+          summary: '遇見只曉得約翰洗禮的門徒使他們領受聖靈；於推喇奴學房每日辯論兩年多，一切住亞西亞的都聽見主的道；銀匠底米丟煽動亞底米女神廟騷亂。',
+          tags: ['三年駐點', '銀匠騷亂']
+        },
+        {
+          name: '馬其頓與希臘（哥林多三個月）',
+          region: '愛琴海西岸',
+          lat: 37.9061, lng: 22.8794,
+          ref: '徒 20:1–3',
+          summary: '亂定後經馬其頓往希臘住了三個月，完成《哥林多後書》與系統神學巨著《羅馬書》，並籌集外邦教會對耶路撒冷的捐項。',
+          tags: ['《羅馬書》誕生地', '八位同工護送']
+        },
+        {
+          name: '特羅亞（猶推古復生）',
+          region: '愛琴海東岸',
+          lat: 39.7575, lng: 26.1508,
+          ref: '徒 20:6–12',
+          summary: '七日第一日聚會擘餅，保羅直講到半夜；少年人猶推古睡熟從三層樓墜下，保羅抱住他說「他的靈魂還在身上」，眾人得大安慰。',
+          tags: ['主日擘餅', '猶推古神蹟']
+        },
+        {
+          name: '米利都（與以弗所長老痛哭別離）',
+          region: '亞西亞西岸港口',
+          lat: 37.5306, lng: 27.2783,
+          ref: '徒 20:17–38',
+          summary: '急欲趕五旬節到耶路撒冷，從米利都請以弗所長老來，勉勵他們謹慎牧養神用自己血所買來的教會；眾人跪下禱告痛哭送別。',
+          tags: ['牧者臨別訓詞', '心被捆綁赴聖城']
+        },
+        {
+          name: '推羅・該撒利亞 → 耶路撒冷',
+          region: '腓尼基與猶太沿海',
+          lat: 32.5000, lng: 34.8994,
+          ref: '徒 21:1–16',
+          summary: '推羅門徒勸阻勿上耶路撒冷；在該撒利亞腓利家，先知亞迦布拿保羅腰帶捆自己手腳預言受縛，保羅答「就是死在耶路撒冷也是願意的」。',
+          tags: ['亞迦布預言', '為主甘心受縛']
+        }
+      ],
+      rome: [
+        {
+          name: '耶路撒冷（殿中騷亂與臺階分訴）',
+          region: '猶太地',
+          lat: 31.7683, lng: 35.2137,
+          ref: '徒 21:27–23:11',
+          summary: '行潔淨禮時被亞西亞猶太人誣指帶以弗所人特羅非摩入殿；千夫長呂西亞救出並鐵鍊捆鎖，保羅在臺階上見證大馬色光照，並揭露羅馬生來民籍。',
+          tags: ['兩條鐵鍊', '羅馬生來民籍']
+        },
+        {
+          name: '該撒利亞（兩年囚禁受審）',
+          region: '猶太羅馬總督府',
+          lat: 32.5000, lng: 34.8994,
+          ref: '徒 23:23–26:32',
+          summary: '因四十人埋伏謀殺連夜兵馬護送至此；先後在巡撫腓力斯（講論公義節制與審判）、非斯都及亞基帕王前分訴，最終宣告「我要上告於該撒」。',
+          tags: ['腓力斯與亞基帕', '上告於該撒']
+        },
+        {
+          name: '革哩底・佳澳（風暴前夕）',
+          region: '克里特島南岸',
+          lat: 34.9250, lng: 24.8050,
+          ref: '徒 27:8–13',
+          summary: '御營百夫長猶流押送，亞里達古與路加同行；保羅預警行船危險「連性命也難保」，惟百夫長信從船主仍開船，遂遇東北狂風「友拉革羅」。',
+          tags: ['百夫長猶流', '亞里達古同行']
+        },
+        {
+          name: '米利大島（海難生還與過冬）',
+          region: '地中海中部 · 現代馬爾他',
+          lat: 35.9375, lng: 14.3754,
+          ref: '徒 27:14–28:10',
+          summary: '十四天漂流後神應許全船276人無一喪命；船隻擱淺全員上岸，保羅被毒蛇咬卻無恙，並醫治島長部百流父親及島上病人，過冬三個月。',
+          tags: ['海難全員獲救', '醫治島民']
+        },
+        {
+          name: '敘拉古・利基翁・部丟利・亞比烏市',
+          region: '西西里與義大利半島',
+          lat: 40.8231, lng: 14.1221,
+          ref: '徒 28:11–15',
+          summary: '乘以「丟斯雙子」為記的亞力山太船北上登陸部丟利；羅馬弟兄一聽見信息，特遠道到亞比烏市和三館迎接，保羅見了就感謝神、放心壯膽。',
+          tags: ['部丟利登陸', '羅馬弟兄迎候']
+        },
+        {
+          name: '羅馬（軟禁傳道兩年）',
+          region: '羅馬帝國首都',
+          lat: 41.9028, lng: 12.4964,
+          ref: '徒 28:16–31',
+          summary: '蒙准和看守的兵另住一處，請猶太首領來講明「為以色列人所指望的被這鍊子捆鎖」（徒 28:20）；放膽傳講神國並寫作四封監獄書信。',
+          tags: ['帶鎖鍊的使者', '四年監獄書信']
+        }
+      ]
+    };
+
+    // Route paths connecting coordinates sequentially
+    var ROUTE_PATHS = {
+      journey1: [
+        [36.2021, 36.1606], [36.1228, 35.9219], [35.1847, 33.9025], [34.7754, 32.4218],
+        [36.9608, 30.8533], [38.3045, 31.1897], [37.8746, 32.4932], [37.5750, 32.2030],
+        [37.3390, 33.6660], [37.5750, 32.2030], [37.8746, 32.4932], [38.3045, 31.1897],
+        [36.9608, 30.8533], [36.8841, 30.7056], [36.2021, 36.1606]
+      ],
+      council: [
+        [36.2021, 36.1606], [33.2705, 35.2038], [32.5000, 34.8994], [31.7683, 35.2137],
+        [36.2021, 36.1606]
+      ],
+      journey2: [
+        [36.2021, 36.1606], [36.9165, 34.8952], [37.3390, 33.6660], [37.5750, 32.2030],
+        [39.7575, 26.1508], [40.4742, 25.5244], [40.9376, 24.4129], [41.0128, 24.2869],
+        [40.6401, 22.9444], [40.5214, 22.2025], [37.9722, 23.7233], [37.9061, 22.8794],
+        [37.8833, 22.9897], [37.9408, 27.3414], [32.5000, 34.8994], [31.7683, 35.2137],
+        [36.2021, 36.1606]
+      ],
+      journey3: [
+        [36.2021, 36.1606], [36.9165, 34.8952], [38.3045, 31.1897], [37.9408, 27.3414],
+        [39.7575, 26.1508], [41.0128, 24.2869], [40.6401, 22.9444], [37.9061, 22.8794],
+        [40.6401, 22.9444], [39.7575, 26.1508], [37.5306, 27.2783], [33.2705, 35.2038],
+        [32.9278, 35.0818], [32.5000, 34.8994], [31.7683, 35.2137]
+      ],
+      rome: [
+        [31.7683, 35.2137], [32.5000, 34.8994], [33.5606, 35.3758], [36.2597, 29.9853],
+        [34.9250, 24.8050], [35.9375, 14.3754], [37.0755, 15.2866], [38.1113, 15.6473],
+        [40.8231, 14.1221], [41.5000, 12.9800], [41.9028, 12.4964]
+      ]
+    };
+
+    var SCRIPTURE_PAIRS = {
+      overview: [
+        {
+          label: '大馬色光照蒙召',
+          actsBook: '使徒行傳 22:14–15, 21',
+          actsText: `「我們祖宗的 神、揀選了你、叫你明白他的旨意、又得見那義者、聽他口中所出的聲音。因為你要將所看見的、所聽見的、對著萬人為他作見證。……主向我說、你去罷．我要差你遠遠的往外邦人那裡去。」`,
+          actsNote: '保羅在耶路撒冷營樓臺階上，親口述說亞拿尼亞傳達的使命與主在殿中的差遣。',
+          epistleBook: '以弗所書 3:6–8',
+          epistleText: `「這奧秘就是外邦人在基督耶穌裡、藉著福音、得以同為後嗣、同為一體、同蒙應許。……我本來比眾聖徒中最小的還小．然而他還賜我這恩典、叫我把基督那測不透的豐富、傳給外邦人．」`,
+          epistleNote: '書信回顧並昇華了使徒行傳中的呼召：外邦人不僅得救，更與以色列「同為一體」。',
+          synthesis: '使徒行傳記載了保羅蒙召的歷史時刻，以弗所書則揭示這項差遣背後的神學深度——外邦人在基督裡同蒙應許的「福音奧秘」。'
+        },
+        {
+          label: '安提阿基地差遣',
+          actsBook: '使徒行傳 13:2–3',
+          actsText: `「他們事奉主、禁食的時候、聖靈說、要為我分派巴拿巴和掃羅、去作我召他們所作的工。於是禁食禱告、按手在他們頭上、就打發他們去了。」`,
+          actsNote: '普世宣教非個人衝動，而是安提阿地方教會在禁食與禱告中順服聖靈主權的差遣行動。',
+          epistleBook: '羅馬書 3:29–30',
+          epistleText: `「難道 神只作猶太人的 神麼．不也是作外邦人的 神麼．是的、也作外邦人的 神。神既是一位、他就要因信稱那受割禮的為義、也要因信稱那未受割禮的為義。」`,
+          epistleNote: '一神論的救恩視野，正是安提阿教會向希利尼人傳福音、跨越文化藩籬的神學根基。',
+          synthesis: '安提阿突破猶太族群限制，成為跨文化宣教母體，直接印證了「神也是外邦人的神」。'
+        }
+      ],
+      journey1: [
+        {
+          label: '南加拉太恩典福音',
+          actsBook: '使徒行傳 13:48–49',
+          actsText: `「外邦人聽見這話、就歡喜了、讚美 神的道．凡預定得永生的人都信了。於是主的道、傳遍了那一帶地方。」`,
+          actsNote: '彼西底的安提阿會堂遭拒絕後，保羅與巴拿巴明確轉向外邦人，福音在南加拉太各地迅速開展。',
+          epistleBook: '加拉太書 3:14, 24–25',
+          epistleText: `「這便叫亞伯拉罕的福、因基督耶穌可以臨到外邦人、使我們因信得著所應許的聖靈。……這樣、律法是我們訓蒙的師傅、引我們到基督那裡、使我們因信稱義。但這因信得救的理、既然來到、我們從此就不在師傅的手下了。」`,
+          epistleNote: '面對後來攪擾加拉太教會的割禮派，保羅重申外邦人領受亞伯拉罕之福完全憑藉信心而非律法。',
+          synthesis: '第一次旅程所植堂的彼西底安提阿、以哥念、路司得與特庇，正是《加拉太書》所守護的南加拉太教會群體。'
+        },
+        {
+          label: '聖靈自由與行善果子',
+          actsBook: '使徒行傳 14:22–23',
+          actsText: `「堅固門徒的心、勸他們恆守所信的道．又說、我們進入 神的國、必須經歷許多艱難。二人在各教會中選立了長老、又禁食禱告、就把他們交託所信的主。」`,
+          actsNote: '在路司得遭石擊後仍折返堅固初信群體，教導門徒在苦難中站穩並建立長老牧養體制。',
+          epistleBook: '加拉太書 5:1, 13, 16',
+          epistleText: `「基督釋放了我們、叫我們得以自由、所以要站立得穩、不要再被奴僕的軛挾制。……你們蒙召、是要得自由．只是不可將你們的自由當作放縱情慾的機會．總要用愛心互相服事。……你們當順著聖靈而行、就不放縱肉體的情慾了。」`,
+          epistleNote: '真正的基督徒自由既不受律法儀文挾制，也不放縱肉體私慾，而是靠聖靈彼此相愛服事。',
+          synthesis: '從徒14章的教會治理到加5章的聖靈生活，構成了初信外邦教會面對外在逼迫與內在肉體試探的雙重裝備。'
+        }
+      ],
+      council: [
+        {
+          label: '因恩得救與不放重軛',
+          actsBook: '使徒行傳 15:8–11',
+          actsText: `「知道人心的 神、也為他們作了見證．賜聖靈給他們、正如給我們一樣。又藉著信潔淨了他們的心、並不分他們我們。……我們得救、乃是因主耶穌的恩、和他們一樣、這是我們所信的。」`,
+          actsNote: '彼得在耶路撒冷公會中以聖靈降臨的歷史事實為據，宣告救恩唯獨本乎主耶穌的恩典與信心。',
+          epistleBook: '加拉太書 2:3–5, 9',
+          epistleText: `「但與我同去的提多、雖是希利尼人、也沒有勉強他受割禮．因為有偷著引進來的假弟兄、私下窺探我們在基督耶穌裡的自由……那稱為教會柱石的雅各、磯法、約翰、就向我和巴拿巴用右手行相交之禮、叫我們往外邦人那裡去……」`,
+          epistleNote: '保羅攜未受割禮的希利尼同工提多同行作為活見證，並獲得耶路撒冷柱石領袖的正式相交與認可。',
+          synthesis: '徒15章從公會體制面頒布外邦人自由公函，加2章則從保羅個人事奉視角見證外邦事工與猶太使徒團契的合一。'
+        },
+        {
+          label: '心裡的割禮與否定肉體誇口',
+          actsBook: '使徒行傳 15:19–20',
+          actsText: `「所以據我的意見、不可難為那歸服 神的外邦人．只要寫信、吩咐他們禁戒偶像的污穢和姦淫、並勒死的牲畜、和血。」`,
+          actsNote: '雅各免除外邦人的割禮與全律法重擔，只保留四項促進猶太與外邦信徒共融的基本生活準則。',
+          epistleBook: '羅馬書 2:28–29',
+          epistleText: `「因為外面作猶太人的、不是真猶太人、外面肉身的割禮、也不是真割禮．惟有裡面作的、纔是真猶太人．真割禮也是心裡的、在乎靈不在乎儀文．這人的稱讚、不是從人來的、乃是從 神來的。」`,
+          epistleNote: '結合新約對「肉體」神學的批判：外在肉身割禮毫無可誇，唯有聖靈在人心中的更新才是真割禮。',
+          synthesis: '公會決議終結了以肉身記號作為得救門檻的律法主義，開啟了「在乎靈、不在乎儀文」的普世教會時代。'
+        }
+      ],
+      journey2: [
+        {
+          label: '患難中的救恩與平安',
+          actsBook: '使徒行傳 16:25, 30–31',
+          actsText: `「約在半夜、保羅和西拉、禱告唱詩讚美 神．眾囚犯也側耳而聽。……又領他們出來、說、二位先生、我當怎樣行纔可以得救。他們說、當信主耶穌、你和你一家都必得救。」`,
+          actsNote: '腓立比監獄神蹟展現出超越苦難的喜樂與權能，使羅馬禁卒全家在當夜聽道受洗。',
+          epistleBook: '帖撒羅尼迦後書 3:16–18',
+          epistleText: `「願賜平安的主、隨時隨事親自給你們平安．願主常與你們眾人同在。我保羅親筆問你們安．凡我的信都以此為記．我的筆跡就是這樣。願我們主耶穌基督的恩、常與你們眾人同在。」`,
+          epistleNote: '帖撒羅尼迦信徒同在逼迫之中，保羅在哥林多寫信親自問安，並祈求主隨時隨事賜下真實平安。',
+          synthesis: '馬其頓諸教會（腓立比與帖撒羅尼迦）都在艱難中誕生，使徒以身作則的讚美與書信中的安慰彼此呼應。'
+        },
+        {
+          label: '以基督為中心對抗異端與虛空哲學',
+          actsBook: '使徒行傳 17:18, 22–23',
+          actsText: `「還有以彼古羅和斯多亞兩門的學士、與他爭論……這話是因保羅傳講耶穌、與復活的道。……保羅站在亞略巴古當中、說、眾位雅典人哪、我看你們凡事很敬畏鬼神。」`,
+          actsNote: '面對希臘哲學大本營，保羅不退縮也不迎合，直接指出創造主並以復活為審判萬人的憑據。',
+          epistleBook: '哥林多前書 18章背景 · 徒 18:9–10',
+          epistleText: `「夜間主在異象中對保羅說、不要怕、只管講、不要閉口．有我與你同在、必沒有人下手害你．因為在這城裡我有許多的百姓。」`,
+          epistleNote: '離開學術氣息濃厚的雅典來到商業與道德混亂的哥林多，主親自堅固保羅駐留一年半建立根基。',
+          synthesis: '從雅典戰神山對哲學家的護教，到哥林多十八個月的深耕，展現了福音對知識界與平民社會的雙重穿透力。'
+        }
+      ],
+      journey3: [
+        {
+          label: '因信稱義的系統闡述',
+          actsBook: '使徒行傳 20:20–21',
+          actsText: `「凡與你們有益的、我沒有一樣避諱不說的．或在眾人面前、或在各人家裡、我都教導你們．又對猶太人、和希利尼人、證明當向 神悔改、信靠我主耶穌基督。」`,
+          actsNote: '保羅在米利都回顧以弗所三年事奉核心：不分猶太人與希臘人，皆須悔改信靠主耶穌基督。',
+          epistleBook: '羅馬書 3:25–28 · 4:3',
+          epistleText: `「神設立耶穌作挽回祭、是憑著耶穌的血、藉著人的信、要顯明 神的義……所以我們看定了、人稱義是因著信、不在乎遵行律法。……經上說甚麼呢．說、『亞伯拉罕信 神、這就算為他的義。』」`,
+          epistleNote: '寫於第三次旅程哥林多過冬期間，將面對猶太人與希利尼人所傳的福音系統化為永恆神學憲章。',
+          synthesis: '米利都臨別訓詞的傳道綱領（「悔改、信靠」），正是《羅馬書》「因信稱義、挽回祭與亞伯拉罕之信」的實踐版。'
+        },
+        {
+          label: '身子為聖靈的殿與教會合一',
+          actsBook: '使徒行傳 19:1–2 · 18:26',
+          actsText: `「保羅經過了上邊一帶地方、就來到以弗所．在那裡遇見幾個門徒．問他們說、你們信的時候、受了聖靈沒有……百基拉亞居拉聽見（亞波羅），就接他來、將 神的道給他講解更加詳細。」`,
+          actsNote: '以弗所成為聖靈更新與真理裝備的樞紐，亞波羅由此被差往亞該亞（哥林多）大大幫助信徒。',
+          epistleBook: '新約「肉體」神學總結（林前、羅 12）',
+          epistleText: `「信徒的身子是基督的肢體，也是聖靈的殿，是重價買來的，應當在身子上榮耀神；並要將身體獻上當作活祭，是聖潔、神所喜悅的理所當然的事奉，從一位聖靈受洗成了一個身體。」`,
+          epistleNote: '針對哥林多教會的紛爭與道德軟弱，保羅在以弗所寫下林前，以「聖靈的殿」與「基督的身體」重塑聖潔觀。',
+          synthesis: '以弗所不僅是地理上的中心，更連結了亞波羅的哥林多牧養與保羅書信中關於聖靈、身體聖潔的深厚教導。'
+        }
+      ],
+      rome: [
+        {
+          label: '鐵鍊中的福音自由',
+          actsBook: '使徒行傳 28:16, 20',
+          actsText: `「進了羅馬城、保羅蒙准、和一個看守他的兵、另住在一處。……因此、我請你們來見面說話．我原為以色列人所指望的、被這鍊子捆鎖。」`,
+          actsNote: '使徒行傳結尾定格在保羅雖被鍊子捆鎖，卻能自由接待所有來訪者、放膽傳講神國的榮耀畫面。',
+          epistleBook: '以弗所書 6:19–22',
+          epistleText: `「也為我祈求、使我得著口才、能以放膽、開口講明福音的奧秘、（我為這福音的奧秘、作了帶鎖鍊的使者）……今有所親愛忠心事奉主的兄弟推基古、他要把我的事情並我的景況如何、全告訴你們叫你們知道。」`,
+          epistleNote: '保羅在羅馬看守下自稱「帶鎖鍊的使者」，仍最掛念能放膽講明福音，並差忠心同工推基古送信安慰眾教會。',
+          synthesis: '徒28章的羅馬鍊子與弗6章的「帶鎖鍊的使者」彼此印證，鎖鍊捆住了保羅的雙手，卻絲毫不能阻擋神的道。'
+        },
+        {
+          label: '福音化解階級鴻溝',
+          actsBook: '使徒行傳 28:15',
+          actsText: `「那裡的弟兄們、一聽見我們的信息、就出來到亞比烏市、和三館地方迎接我們．保羅見了他們、就感謝 神、放心壯膽。」`,
+          actsNote: '羅馬教會弟兄長途出城迎接囚犯保羅，展現出在基督裡跨越羞辱與身分的真誠弟兄之愛。',
+          epistleBook: '腓利門書 1:15–16, 23–24',
+          epistleText: `「他暫時離開你、或者是叫你永遠得著他。不再是奴僕、乃是高過奴僕、是親愛的兄弟、在我實在是如此、何況在你呢。……為基督耶穌與我同坐監的以巴弗問你安。與我同工的馬可、亞里達古、底馬、路加、也都問你安。」`,
+          epistleNote: '在羅馬坐監期間，保羅帶領逃奴阿尼西母歸主，並親筆致信歌羅西主人腓利門，以福音重塑主僕關係為弟兄之情。',
+          synthesis: '從《以弗所書》論猶太與外邦拆毀隔斷的牆，到《腓利門書》實踐主人與奴僕成為親愛兄弟，見證福音徹底更新人間關係。'
+        }
+      ]
+    };
+
+    var COMPANIONS = {
+      overview: [
+        { name: '巴拿巴（約瑟）', role: '勸慰子 · 第一次旅程領袖', ref: '徒 4:36, 11:22–26, 13:2', desc: '生於居比路的利未人。在耶路撒冷為掃羅作保、從大數找掃羅到安提阿同工，並帶領第一次宣教旅程。' },
+        { name: '西拉（西耳瓦奴）', role: '先知 · 第二次旅程副手', ref: '徒 15:22, 32, 40; 16:25', desc: '耶路撒冷教會首領之一，奉派帶公函往安提阿；後成為保羅第二次旅程同工，同在腓立比監獄半夜唱詩讚美神。' },
+        { name: '提摩太', role: '屬靈真兒子 · 牧養與代筆同工', ref: '徒 16:1–3, 20:4; 提後', desc: '路司得信主猶太婦人的兒子、父親為希利尼人；自第二次旅程起忠心隨行，多次奉派巡視哥林多與馬其頓教會。' },
+        { name: '路加', role: '醫生 · 歷史家與同行者', ref: '徒 16:10, 27–28; 門 1:24', desc: '《路加福音》與《使徒行傳》作者。在特羅亞「我們」段落加入團隊，並全程陪同保羅經歷海難直抵羅馬坐監。' },
+        { name: '亞居拉與百基拉', role: '織帳棚夫婦 · 教會柱石', ref: '徒 18:2–3, 18–26', desc: '從羅馬遷至哥林多與保羅同住織帳棚；後隨往以弗所留守開拓，並曾接亞波羅來將神的道講解更加詳細。' },
+        { name: '推基古', role: '亞西亞同工 · 書信信差', ref: '徒 20:4; 弗 6:21–22', desc: '第三旅程護送捐項的亞西亞代表，後忠心將《以弗所書》與《歌羅西書》從羅馬帶往亞西亞安慰眾聖徒。' }
+      ],
+      journey1: [
+        { name: '巴拿巴', role: '同工領袖（勸慰子）', ref: '徒 13:1–14:28', desc: '在安提阿與掃羅同被聖靈分派，率先前往故鄉塞浦路斯；在路司得被當地人誤稱為「丟斯」。忠心成全保羅恩賜。' },
+        { name: '保羅（原名掃羅）', role: '主要講道者與外邦使徒', ref: '徒 13:9, 14:12', desc: '自帕弗責備以呂馬起正式改稱羅馬名字保羅，並漸成團隊主導講員；在彼西底安提阿發表長篇救贖史講論。' },
+        { name: '約翰・馬可', role: '青年幫手（後返耶路撒冷）', ref: '徒 13:5, 13', desc: '巴拿巴表弟，在撒拉米協助團隊，但抵達旁非利亞別加後離開團隊返耶路撒冷；晚年重獲保羅肯定為「於我有益」（提後 4:11）。' }
+      ],
+      council: [
+        { name: '雅各（主的兄弟）', role: '耶路撒冷教會柱石與主席', ref: '徒 15:13–21; 加 2:9', desc: '綜合眾人見證並引舊約先知預言作最終裁決，確立「不可難為歸服神的外邦人」，與保羅行右手相交之禮。' },
+        { name: '彼得（磯法）', role: '受割禮之人的使徒', ref: '徒 15:7–11; 加 2:7–9', desc: '挺身見證神早已藉他口叫外邦人聽福音並賜聖靈（哥尼流之家），主張「得救乃是因主耶穌的恩」。' },
+        { name: '巴撒巴猶大與西拉', role: '公會特使與先知', ref: '徒 15:22, 27, 32', desc: '耶路撒冷從弟兄中揀選作首領的兩位代表，陪同保羅巴拿巴赴安提阿親口證實公函並用許多話堅固弟兄。' },
+        { name: '提多', role: '未受割禮的希利尼同工', ref: '加 2:1–3', desc: '保羅與巴拿巴上耶路撒冷時特帶提多同去，即使在猶太母會壓力下亦沒有勉強他受割禮，成為因信稱義的活證據。' }
+      ],
+      journey2: [
+        { name: '西拉', role: '宣教副手與患難夥伴', ref: '徒 15:40, 16:19–40', desc: '接替分開後的宣教搭檔；與保羅一同具備羅馬民籍（徒 16:37），在腓立比同受棍打下監並半夜高聲讚美。' },
+        { name: '提摩太', role: '青年門徒加入', ref: '徒 16:1–3', desc: '路司得與以哥念弟兄皆稱讚他；為免當地猶太人絆跌而行割禮後隨保羅出發，成為跨越文化與後期的核心助手。' },
+        { name: '路加', role: '同行醫生與記錄者', ref: '徒 16:10–17', desc: '自特羅亞領受馬其頓異象起，《使徒行傳》轉用第一人稱複數「我們」，見證其加入並可能留守腓立比牧養。' },
+        { name: '亞居拉與百基拉', role: '同業織帳棚夫婦', ref: '徒 18:1–3, 18–19', desc: '因羅馬皇帝革老丟命猶太人離羅馬而遷至哥林多；與保羅同工同住，成為早期家庭教會的重要接待者。' },
+        { name: '呂底亞', role: '歐洲首位歸主者與接待人', ref: '徒 16:14–15, 40', desc: '推雅推喇城賣紫色布疋的敬虔婦人，主開導她的心留心聽道受洗，並強留使徒住在她家成為腓立比教會起點。' }
+      ],
+      journey3: [
+        { name: '亞波羅', role: '亞力山太學問口才教師', ref: '徒 18:24–28', desc: '心裡火熱卻單曉得約翰洗禮，在以弗所由百基拉亞居拉詳解神的道後往亞該亞去，引聖經極有能力證明耶穌是基督。' },
+        { name: '亞西亞與馬其頓護送團', role: '各教會捐項代表（7人）', ref: '徒 20:4', desc: '包含庇哩亞人所巴特、帖撒羅尼迦人亞里達古與西公都、特庇人該猶、提摩太，以及亞西亞人推基古與特羅非摩。' },
+        { name: '以弗所教會長老', role: '當地群羊監督', ref: '徒 20:17–38', desc: '奉保羅召請至米利都領受臨別託付，被提醒防備兇暴豺狼，眾人抱著保羅頸項痛哭送他上船。' }
+      ],
+      rome: [
+        { name: '推基古', role: '忠心帶信者與代報者', ref: '弗 6:21–22; 西 4:7', desc: '「親愛忠心事奉主的兄弟」，負責將保羅在羅馬監獄的光景與《以弗所書》《歌羅西書》帶往亞西亞教會安慰眾心。' },
+        { name: '阿尼西母', role: '重獲新生的逃奴兄弟', ref: '門 1:11–16', desc: '原為歌羅西腓利門逃奴，在羅馬遇保羅歸主後「從前無益、如今有益」，保羅稱他為「心上的人」並差返原主人處。' },
+        { name: '以巴弗', role: '同坐監的代禱勇士', ref: '門 1:23', desc: '歌羅西教會創始人與代表，在羅馬「為基督耶穌與保羅同坐監」，並在書信中向腓利門問安。' },
+        { name: '亞里達古與路加', role: '航行海難與坐監良伴', ref: '徒 27:2; 門 1:24', desc: '馬其頓帖撒羅尼迦人亞里達古與醫生路加一同陪保羅經歷佳澳風暴、米利大海難，並於羅馬囚禁期間繼續同工。' },
+        { name: '馬可', role: '重新接納的同工', ref: '門 1:24; 提後 4:11', desc: '曾於第一次旅程中途離開，但在保羅羅馬書信中名列「與我同工的馬可」，晚年更被評價在傳道事上於保羅有益。' }
+      ]
+    };
+
+    var TIMELINE_ITEMS = [
+      { year: 'AD 33–45', title: '大馬色蒙召與安提阿預備', desc: '掃羅遇見復活主、返大數靜候，後由巴拿巴尋回在安提阿同工教導一年。', tab: 'overview' },
+      { year: 'AD 46–48', title: '第一次宣教旅程（加拉太書時期）', desc: '經塞浦路斯入小亞細亞南加拉太建立四座核心教會，確立外邦宣教模式。', tab: 'journey1' },
+      { year: 'AD 49', title: '耶路撒冷會議（徒 15 章）', desc: '解決割禮爭議，使徒公函確認外邦人唯獨本乎主恩因信得救。', tab: 'council' },
+      { year: 'AD 49–52', title: '第二次宣教旅程（帖前後時期）', desc: '見馬其頓異象跨入歐洲，於腓立比、雅典傳道，哥林多駐留十八個月。', tab: 'journey2' },
+      { year: 'AD 53–57', title: '第三次宣教旅程（林前後・羅馬書）', desc: '以弗所深耕三年，寫作三大書信，攜外邦教會捐項赴耶路撒冷。', tab: 'journey3' },
+      { year: 'AD 57–67', title: '羅馬之行、監獄書信與提摩太後書', desc: '歷經審訊與米利大海難抵羅馬，寫作弗、腓、西、門四卷書信及終末提後。', tab: 'rome' }
+    ];
+
+    var COUNCIL_STEPS = [
+      {
+        num: '01',
+        title: '爭議發端與赴京',
+        ref: '徒 15:1–5',
+        body: `有幾個人從猶太下到安提阿教訓弟兄「若不按摩西的規條受割禮，不能得救」。保羅與巴拿巴與他們大起分爭辯論，眾門徒定規差派他們和幾位代表（包含希利尼人提多）上耶路撒冷見使徒和長老，沿途經過腓尼基和撒瑪利亞傳說外邦人歸主之喜訊。`
+      },
+      {
+        num: '02',
+        title: '彼得見證恩典',
+        ref: '徒 15:6–11',
+        body: `辯論已經多了，彼得起來提醒公會：神早已揀選他叫外邦人得聽福音而且相信；知道人心的神也賜聖靈給他們，正如給猶太人一樣，「又藉著信潔淨了他們的心、並不分他們我們」。彼得質問為何把祖宗和自己都不能負的軛放在門徒頸項上，結論是「我們得救、乃是因主耶穌的恩、和他們一樣」。`
+      },
+      {
+        num: '03',
+        title: '保羅巴拿巴述說神蹟',
+        ref: '徒 15:12',
+        body: `全場眾人都默默無聲，靜聽巴拿巴和保羅述說神藉他們在外邦人中所行的神蹟奇事——這是神親自接納未受割禮之外邦人的活生生印證。`
+      },
+      {
+        num: '04',
+        title: '雅各裁決與使徒公函',
+        ref: '徒 15:13–35',
+        body: `教會柱石雅各引用先知阿摩司預言（「凡稱為我名下的外邦人，都尋求主」），決議不可難為歸服神的外邦人，只囑咐在道德與猶太外邦團契上禁戒四事（祭偶像的物、血、勒死的牲畜、姦淫）。公會隨即差派猶大與西拉帶信同返安提阿，眾人念了信上安慰的話就滿心歡喜。`
+      }
+    ];
+
+    var PRISON_EPISTLES = [
+      {
+        id: 'eph',
+        title: '《以弗所書》',
+        subtitle: '教會是基督的身體 · 合一與屬靈軍裝',
+        period: '第一次羅馬囚禁（約 AD 60–62）',
+        courier: '推基古（弗 6:21–22）',
+        theme: '基督元首地位、猶太與外邦拆毀隔斷的牆合而為一、信徒行事與光明的果子、穿戴神所賜的全副軍裝。',
+        quote: `「因他使我們和睦、將兩下合而為一、拆毀了中間隔斷的牆……並且被建造在使徒和先知的根基上、有基督耶穌自己為房角石……所以要站穩了、用真理當作帶子束腰、用公義當作護心鏡遮胸。」（弗 2:14, 20; 6:14）`,
+        detail: `保羅在書中兩度明言自己為外邦人作了「基督耶穌被囚的」及「帶鎖鍊的使者」（弗 3:1, 4:1, 6:20）。全書先闡明在基督裡天上各樣屬靈的福氣（1–3章），再勸勉門徒在教會、家庭、主僕關係與屬靈爭戰中活出與蒙召恩相稱的新人生活（4–6章）。`
+      },
+      {
+        id: 'phil',
+        title: '《腓立比書》',
+        subtitle: '鎖鍊中的喜樂書信 · 基督虛己與標竿',
+        period: '第一次羅馬囚禁（約 AD 61–62）',
+        courier: '以巴弗提',
+        theme: '雖在捆鎖中仍靠主常常喜樂、效法基督倒空虛己並被高舉、忘記背後努力面前的標竿人生。',
+        quote: `「你們當以基督耶穌的心為心：他本有神的形像，不以自己與神同等為強奪的，反倒虛己，取了奴僕的形像……既有人的樣子，就自己卑微，存心順服，以至於死，且死在十字架上。」（腓 2:5–8）`,
+        detail: `寫給第二次旅程在歐洲所建立的第一座教會（徒 16）。腓立比教會派以巴弗提送來愛心供給並探視坐監的保羅；保羅雖面對生死未卜的審訊與羅馬御營捆鎖，全書卻充滿感恩、喜樂與對律法肉體誇口的徹底否定（腓 3:3–8）。`
+      },
+      {
+        id: 'col',
+        title: '《歌羅西書》',
+        subtitle: '基督在萬有之上的超越性 · 駁斥苦修規條',
+        period: '第一次羅馬囚禁（約 AD 60–62）',
+        courier: '推基古與阿尼西母',
+        theme: '愛子是那不能看見之神的像、在萬有之先並為萬有元首；抵擋世俗小學、禁戒與苦待己身之假敬虔。',
+        quote: `「愛子是那不能看見之神的像，是首生的，在一切被造的以先。因為萬有都是靠他造的……他在萬有之先，萬有也靠他而立。」（西 1:15–17）`,
+        detail: `保羅未曾親臨歌羅西，乃聽見同囚的歌羅西同工以巴弗報告教會面臨世俗哲學、天使敬拜與禁戒飲食等律法規條侵擾。保羅指出「禁止、苦待己身」在克制肉體情慾上毫無功效（西 2:23），唯獨連於元首基督並治死地上的肢體方能長進。`
+      },
+      {
+        id: 'phm',
+        title: '《腓利門書》',
+        subtitle: '福音中的饒恕與弟兄之情 · 親筆擔保書',
+        period: '第一次羅馬囚禁（約 AD 60–62）',
+        courier: '阿尼西母隨推基古同行',
+        theme: '為在羅馬歸主的逃奴阿尼西母向主人腓利門代求：甘心接納他不再是奴僕，乃是親愛的兄弟。',
+        quote: `「不再是奴僕、乃是高過奴僕、是親愛的兄弟、在我實在是如此、何況在你呢。……他若虧負你、或欠你甚麼、都歸在我的賬上．我必償還．這是我保羅親筆寫的．」（門 1:16, 18–19）`,
+        detail: `新約中最短卻極具人情溫度的書信。保羅原本有意留下阿尼西母在捆鎖中伺候自己，但尊重主人腓利門的甘心善意而打發他回去；文末列出同坐監的以巴弗，以及馬可、亞里達古、底馬、路加四位同工聯名問安。`
+      },
+      {
+        id: '2tim',
+        title: '《提摩太後書》',
+        subtitle: '第二次被囚絕筆 · 交棒忠心門徒',
+        period: '第二次羅馬囚禁（約 AD 66–67，殉道前夕）',
+        courier: '差派提摩太速來羅馬',
+        theme: '不以福音和帶鎖鍊的保羅為恥、在聖經真道上裝備齊全、跑盡當跑之路的凱旋告白。',
+        quote: `「我現在被澆奠、我離世的時候到了。那美好的仗我已經打過了、當跑的路我已經跑盡了、所信的道我已經守住了。從此以後、有公義的冠冕為我存留。」（提後 4:6–8）`,
+        detail: `依教會歷史傳統，保羅初次羅馬軟禁獲釋後仍短暫巡迴事奉（書寫《提摩太前書》與《提多書》），後於尼祿迫害期間再度被捕下在羅馬地牢。除路加仍在身旁外（提後 4:11），眾人多已離去或分派各地；保羅寫下最後囑託，並請提摩太帶馬可同來，因他在傳道事上於保羅有益。`
+      }
+    ];
+
+    // ==================== STATE ====================
+    var currentTab = 'overview';
+    var selectedWaypointIndex = {
+      overview: 0,
+      journey1: 0,
+      council: 0,
+      journey2: 0,
+      journey3: 0,
+      rome: 0
+    };
+    var activeScriptureIndex = {
+      overview: 0,
+      journey1: 0,
+      council: 0,
+      journey2: 0,
+      journey3: 0,
+      rome: 0
+    };
+    var overviewRouteVisibility = {
+      journey1: true,
+      council: true,
+      journey2: true,
+      journey3: true,
+      rome: true
+    };
+    var activeCouncilStep = 0;
+    var activePrisonEpistle = 'eph';
+
+    var atlasMap = null;
+    var baseGeoLayer = null;
+    var routeLayerGroup = null;
+    var waypointMarkers = [];
+    var overviewChartInstance = null;
+
+    // Helper: read CSS custom properties from :root
+    function getToken(name) {
+      var val = getComputedStyle(document.documentElement).getPropertyValue(name);
+      return val ? val.trim() : '';
+    }
+
+    // ==================== MAP ENGINE ====================
+    function initAtlasMap() {
+      var mapEl = document.getElementById('med-map');
+      if (!mapEl || typeof L === 'undefined') return;
+
+      atlasMap = L.map('med-map', {
+        center: [37.5, 24.5],
+        zoom: 4,
+        minZoom: 3,
+        maxZoom: 8,
+        scrollWheelZoom: false,
+        attributionControl: false
+      });
+
+      routeLayerGroup = L.layerGroup().addTo(atlasMap);
+      drawMedGraticule();
+
+      // Load Natural Earth 50m public-domain vector geometry
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json')
+        .then(function(res) {
+          if (!res.ok) throw new Error('Map data status ' + res.status);
+          return res.json();
+        })
+        .then(function(topo) {
+          if (typeof topojson === 'undefined' || !topo.objects || !topo.objects.countries) return;
+          var geo = topojson.feature(topo, topo.objects.countries);
+          baseGeoLayer = L.geoJSON(geo, {
+            style: function() {
+              return {
+                fillColor: getToken('--map-land'),
+                fillOpacity: 1,
+                color: getToken('--map-border'),
+                weight: 0.9
+              };
+            },
+            interactive: false
+          }).addTo(atlasMap);
+          baseGeoLayer.bringToBack();
+          if (routeLayerGroup && typeof routeLayerGroup.eachLayer === 'function') {
+            routeLayerGroup.eachLayer(function(l) {
+              if (l.bringToFront) l.bringToFront();
+            });
+          }
+        })
+        .catch(function() {
+          var statusEl = document.getElementById('map-status-note');
+          if (statusEl) {
+            statusEl.textContent = '離線座標圖網格模式（仍可點擊所有站點路線互動）';
+          }
+        });
+    }
+
+    function drawMedGraticule() {
+      if (!atlasMap) return;
+      var gridColor = getToken('--map-grid');
+      var lat, lng;
+      for (lat = 25; lat <= 50; lat += 5) {
+        L.polyline([[lat, -5], [lat, 45]], {
+          color: gridColor, weight: 0.7, dashArray: '3 4', interactive: false
+        }).addTo(atlasMap);
+      }
+      for (lng = 0; lng <= 45; lng += 5) {
+        L.polyline([[25, lng], [50, lng]], {
+          color: gridColor, weight: 0.7, dashArray: '3 4', interactive: false
+        }).addTo(atlasMap);
+      }
+    }
+
+    function mountAtlasIntoTab(tabId) {
+      var atlasCard = document.getElementById('shared-atlas-card');
+      var targetSlot = document.getElementById('map-slot-' + tabId);
+      if (!atlasCard || !targetSlot) return;
+      targetSlot.appendChild(atlasCard);
+
+      var titleEl = document.getElementById('atlas-card-title');
+      if (titleEl && TAB_META[tabId]) {
+        titleEl.textContent = TAB_META[tabId].mapTitle;
+      }
+
+      var togglesEl = document.getElementById('overview-layer-toggles');
+      if (togglesEl) {
+        togglesEl.hidden = (tabId !== 'overview');
+      }
+
+      renderMapForTab(tabId);
+      setTimeout(function() {
+        if (atlasMap) {
+          atlasMap.invalidateSize(false);
+          resetCurrentMapBounds();
+        }
+      }, 60);
+    }
+
+    function renderMapForTab(tabId) {
+      if (!atlasMap || !routeLayerGroup) return;
+      routeLayerGroup.clearLayers();
+      waypointMarkers = [];
+
+      if (tabId === 'overview') {
+        Object.keys(ROUTE_PATHS).forEach(function(key) {
+          if (!overviewRouteVisibility[key]) return;
+          var styleInfo = ROUTE_STYLES[key];
+          var strokeColor = getToken(styleInfo.colorVar);
+          L.polyline(ROUTE_PATHS[key], {
+            color: strokeColor,
+            weight: 3,
+            opacity: 0.85,
+            dashArray: styleInfo.dash
+          }).bindTooltip(styleInfo.label).addTo(routeLayerGroup);
+        });
+      } else {
+        var rStyle = ROUTE_STYLES[tabId];
+        var pts = ROUTE_PATHS[tabId] || [];
+        if (pts.length > 1 && rStyle) {
+          L.polyline(pts, {
+            color: getToken(rStyle.colorVar),
+            weight: 3.5,
+            opacity: 0.92,
+            dashArray: rStyle.dash
+          }).addTo(routeLayerGroup);
+        }
+      }
+
+      var wps = WAYPOINTS[tabId] || [];
+      var activeIdx = selectedWaypointIndex[tabId] || 0;
+      var activeColor = getToken(TAB_META[tabId].colorVar);
+      var goldColor = getToken('--primary-container');
+      var inkColor = getToken('--on-surface');
+      var whiteColor = getToken('--surface-container-low');
+
+      wps.forEach(function(wp, idx) {
+        var isSel = (idx === activeIdx);
+        var marker = L.circleMarker([wp.lat, wp.lng], {
+          radius: isSel ? 9 : 6.5,
+          color: inkColor,
+          weight: isSel ? 2.5 : 1.5,
+          fillColor: isSel ? goldColor : activeColor,
+          fillOpacity: 1
+        }).addTo(routeLayerGroup);
+
+        marker.bindTooltip((idx < 9 ? '0' : '') + (idx + 1) + ' ' + wp.name, { direction: 'top' });
+        marker.on('click', function() {
+          selectWaypoint(tabId, idx, false);
+        });
+        waypointMarkers.push(marker);
+      });
+
+      updateStationDetail(tabId, activeIdx);
+    }
+
+    function resetCurrentMapBounds() {
+      if (!atlasMap) return;
+      var coords = [];
+      if (currentTab === 'overview') {
+        (WAYPOINTS.overview || []).forEach(function(w) { coords.push([w.lat, w.lng]); });
+        if (coords.length > 0) {
+          atlasMap.fitBounds(coords, { padding: [36, 36], maxZoom: 5 });
+        }
+      } else {
+        var pathPts = ROUTE_PATHS[currentTab] || [];
+        var wps = WAYPOINTS[currentTab] || [];
+        pathPts.forEach(function(p) { coords.push(p); });
+        wps.forEach(function(w) { coords.push([w.lat, w.lng]); });
+        if (coords.length > 0) {
+          atlasMap.fitBounds(coords, { padding: [34, 34], maxZoom: 6 });
+        }
+      }
+    }
+
+    function toggleOverviewRoute(routeKey, btnEl) {
+      overviewRouteVisibility[routeKey] = !overviewRouteVisibility[routeKey];
+      if (btnEl) {
+        btnEl.classList.toggle('is-active', overviewRouteVisibility[routeKey]);
+      }
+      if (currentTab === 'overview') {
+        renderMapForTab('overview');
+      }
+    }
+
+    // ==================== WAYPOINT & DETAIL RENDERERS ====================
+    function renderWaypoints(tabId) {
+      var listEl = document.getElementById('waypoints-' + tabId);
+      if (!listEl) return;
+      var wps = WAYPOINTS[tabId] || [];
+      var activeIdx = selectedWaypointIndex[tabId] || 0;
+
+      var html = wps.map(function(wp, idx) {
+        var numStr = (idx < 9 ? '0' : '') + (idx + 1);
+        var cls = 'waypoint-card' + (idx === activeIdx ? ' is-selected' : '');
+        return `
+          <button type="button" class="${cls}" onclick="selectWaypoint('${tabId}', ${idx}, true)">
+            <span class="wp-num">${numStr}</span>
+            <div>
+              <div class="wp-title-row">
+                <span class="wp-name">${wp.name}</span>
+                <span class="wp-ref">${wp.ref}</span>
+              </div>
+              <p class="wp-summary">${wp.summary}</p>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      listEl.innerHTML = html;
+    }
+
+    function selectWaypoint(tabId, idx, panMap) {
+      var wps = WAYPOINTS[tabId] || [];
+      if (idx < 0 || idx >= wps.length) return;
+      selectedWaypointIndex[tabId] = idx;
+      renderWaypoints(tabId);
+      renderMapForTab(tabId);
+
+      if (panMap && atlasMap && wps[idx]) {
+        atlasMap.panTo([wps[idx].lat, wps[idx].lng], { animate: true });
+      }
+    }
+
+    function stepWaypoint(delta) {
+      var wps = WAYPOINTS[currentTab] || [];
+      if (!wps.length) return;
+      var cur = selectedWaypointIndex[currentTab] || 0;
+      var next = (cur + delta + wps.length) % wps.length;
+      selectWaypoint(currentTab, next, true);
+    }
+
+    function updateStationDetail(tabId, idx) {
+      var wps = WAYPOINTS[tabId] || [];
+      var wp = wps[idx];
+      if (!wp) return;
+
+      var titleEl = document.getElementById('sd-title');
+      var refEl = document.getElementById('sd-ref');
+      var bodyEl = document.getElementById('sd-body');
+      var metaEl = document.getElementById('sd-meta');
+
+      if (titleEl) titleEl.textContent = wp.name + '（' + wp.region + '）';
+      if (refEl) refEl.textContent = wp.ref;
+      if (bodyEl) bodyEl.textContent = wp.summary;
+      if (metaEl) {
+        var tagsHtml = (wp.tags || []).map(function(t) {
+          return `<span class="tag-slate">${t}</span>`;
+        }).join('');
+        var jumpHtml = wp.jumpTab
+          ? `<button type="button" class="btn-primary" style="margin-left:auto;" onclick="switchTab('${wp.jumpTab}')">前往該旅程分頁 →</button>`
+          : '';
+        metaEl.innerHTML = tagsHtml + jumpHtml;
+      }
+    }
+
+    // ==================== SCRIPTURE COMPARISON RENDERER ====================
+    function renderScriptureArea(tabId) {
+      var container = document.getElementById('scripture-area-' + tabId);
+      if (!container) return;
+      var pairs = SCRIPTURE_PAIRS[tabId] || [];
+      if (!pairs.length) return;
+
+      var activeIdx = activeScriptureIndex[tabId] || 0;
+      if (activeIdx >= pairs.length) activeIdx = 0;
+      var item = pairs[activeIdx];
+
+      var btnsHtml = pairs.map(function(p, i) {
+        var cls = 'scripture-tab-btn' + (i === activeIdx ? ' is-active' : '');
+        return `<button type="button" class="${cls}" onclick="setScripturePair('${tabId}', ${i})">${p.label}</button>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="scripture-tabs">${btnsHtml}</div>
+        <div class="parallel-grid">
+          <article class="scripture-card">
+            <div class="scripture-card-head">
+              <span class="scripture-book">${item.actsBook}</span>
+              <span class="tag-slate">歷史敘事 · 使徒行傳</span>
+            </div>
+            <blockquote class="scripture-quote">${item.actsText}</blockquote>
+            <p class="scripture-note">${item.actsNote}</p>
+          </article>
+          <article class="scripture-card">
+            <div class="scripture-card-head">
+              <span class="scripture-book">${item.epistleBook}</span>
+              <span class="tag-warm">書信神學回應</span>
+            </div>
+            <blockquote class="scripture-quote">${item.epistleText}</blockquote>
+            <p class="scripture-note">${item.epistleNote}</p>
+          </article>
+        </div>
+        <div class="synthesis-bar">
+          <strong>經文對照要旨：</strong>${item.synthesis}
+        </div>
+      `;
+    }
+
+    function setScripturePair(tabId, idx) {
+      activeScriptureIndex[tabId] = idx;
+      renderScriptureArea(tabId);
+    }
+
+    // ==================== COMPANIONS RENDERER ====================
+    function renderCompanions(tabId) {
+      var el = document.getElementById('companions-' + tabId);
+      if (!el) return;
+      var list = COMPANIONS[tabId] || [];
+      el.innerHTML = list.map(function(c) {
+        return `
+          <article class="companion-card">
+            <div class="companion-top">
+              <span class="companion-name">${c.name}</span>
+              <span class="tag-slate">${c.ref}</span>
+            </div>
+            <div class="companion-role">${c.role}</div>
+            <p class="companion-desc">${c.desc}</p>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // ==================== OVERVIEW SPECIFIC RENDERERS ====================
+    function renderOverviewTimeline() {
+      var el = document.getElementById('overview-timeline');
+      if (!el) return;
+      el.innerHTML = TIMELINE_ITEMS.map(function(t) {
+        return `
+          <div class="timeline-item">
+            <span class="timeline-year">${t.year}</span>
+            <div>
+              <h4 class="timeline-title">${t.title}</h4>
+              <p class="timeline-desc">${t.desc}</p>
+            </div>
+            <button type="button" class="btn-secondary" onclick="switchTab('${t.tab}')">檢視 →</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderOverviewChart() {
+      var canvas = document.getElementById('overviewChart');
+      if (!canvas || typeof Chart === 'undefined') return;
+      if (overviewChartInstance) {
+        overviewChartInstance.destroy();
+      }
+      var c1 = getToken('--data-1');
+      var c2 = getToken('--data-2');
+      var ink = getToken('--on-surface');
+      var muted = getToken('--on-surface-variant');
+      var grid = getToken('--outline-variant');
+
+      overviewChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: ['第一次旅程', '耶路撒冷會議', '第二次旅程', '第三次旅程', '羅馬監獄時期'],
+          datasets: [
+            {
+              label: '核心路線節點數',
+              data: [7, 4, 8, 6, 6],
+              backgroundColor: c1,
+              borderRadius: 2
+            },
+            {
+              label: '直接關聯書信卷數',
+              data: [1, 0, 2, 3, 5],
+              backgroundColor: c2,
+              borderRadius: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              align: 'start',
+              labels: {
+                color: ink,
+                font: { family: getToken('--font-body'), size: 12, weight: '600' },
+                boxWidth: 12
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: muted, font: { size: 11 } }
+            },
+            y: {
+              beginAtZero: true,
+              suggestedMax: 9,
+              grid: { color: grid },
+              ticks: { stepSize: 2, color: muted, font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // ==================== COUNCIL PROTOCOL RENDERER ====================
+    function renderCouncilProtocol() {
+      var stepsEl = document.getElementById('council-protocol-steps');
+      var detailEl = document.getElementById('council-protocol-detail');
+      if (!stepsEl || !detailEl) return;
+
+      stepsEl.innerHTML = COUNCIL_STEPS.map(function(s, idx) {
+        var cls = 'protocol-step' + (idx === activeCouncilStep ? ' is-active' : '');
+        return `
+          <button type="button" class="${cls}" onclick="setCouncilStep(${idx})">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-xs);">
+              <span class="wp-num" style="margin:0;">${s.num}</span>
+              <span class="wp-ref">${s.ref}</span>
+            </div>
+            <div style="font-family:var(--font-headline);font-weight:700;font-size:1rem;color:var(--on-surface);">${s.title}</div>
+          </button>
+        `;
+      }).join('');
+
+      var active = COUNCIL_STEPS[activeCouncilStep];
+      if (active) {
+        detailEl.innerHTML = `
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-sm);margin-bottom:var(--space-xs);">
+            <h3 style="margin:0;">${active.num} · ${active.title}</h3>
+            <span class="tag-warm">${active.ref}</span>
+          </div>
+          <p style="margin:0;font-size:0.95rem;">${active.body}</p>
+        `;
+      }
+    }
+
+    function setCouncilStep(idx) {
+      activeCouncilStep = idx;
+      renderCouncilProtocol();
+    }
+
+    // ==================== PRISON EPISTLES EXPLORER ====================
+    function renderPrisonEpistles() {
+      var menuEl = document.getElementById('epistle-menu');
+      var viewerEl = document.getElementById('epistle-viewer');
+      if (!menuEl || !viewerEl) return;
+
+      menuEl.innerHTML = PRISON_EPISTLES.map(function(ep) {
+        var cls = 'epistle-btn' + (ep.id === activePrisonEpistle ? ' is-active' : '');
+        return `
+          <button type="button" class="${cls}" onclick="selectPrisonEpistle('${ep.id}')">
+            <div>
+              <div style="font-family:var(--font-headline);font-size:1.05rem;">${ep.title}</div>
+              <div style="font-size:0.78rem;opacity:0.85;">${ep.subtitle}</div>
+            </div>
+            <i data-lucide="chevron-right" aria-hidden="true" style="width:16px;height:16px;flex-shrink:0;"></i>
+          </button>
+        `;
+      }).join('');
+
+      var found = PRISON_EPISTLES.find(function(x) { return x.id === activePrisonEpistle; }) || PRISON_EPISTLES[0];
+      viewerEl.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-sm);border-bottom:1px solid var(--outline-variant);padding-bottom:var(--space-sm);margin-bottom:var(--space-md);">
+          <div>
+            <h4 style="font-family:var(--font-headline);font-weight:700;font-size:1.35rem;margin:0;">${found.title}</h4>
+            <div style="color:var(--secondary);font-weight:600;font-size:0.9rem;">${found.subtitle}</div>
+          </div>
+          <span class="tag-warm">${found.period}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-sm);margin-bottom:var(--space-md);background:var(--surface-container);padding:var(--space-sm) var(--space-md);border-radius:var(--rounded);">
+          <div><span class="dossier-meta">送信／關鍵同工：</span><strong style="font-size:0.875rem;">${found.courier}</strong></div>
+          <div><span class="dossier-meta">核心神學：</span><span style="font-size:0.875rem;">${found.theme}</span></div>
+        </div>
+        <blockquote class="scripture-quote" style="margin-bottom:var(--space-md);">${found.quote}</blockquote>
+        <p style="margin:0;font-size:0.9375rem;color:var(--on-surface-variant);">${found.detail}</p>
+      `;
+
+      refreshIcons();
+    }
+
+    function selectPrisonEpistle(id) {
+      activePrisonEpistle = id;
+      renderPrisonEpistles();
+    }
+
+    // ==================== TAB ROUTING & NAVIGATION ====================
+    function switchTab(tabId) {
+      if (TAB_ORDER.indexOf(tabId) === -1) return;
+      currentTab = tabId;
+
+      // Update Nav Tabs
+      var navButtons = document.querySelectorAll('.nav-tab');
+      navButtons.forEach(function(btn) {
+        var isTarget = (btn.getAttribute('data-tab') === tabId);
+        btn.classList.toggle('is-active', isTarget);
+        btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+      });
+
+      // Toggle Panels
+      TAB_ORDER.forEach(function(id) {
+        var panel = document.getElementById('panel-' + id);
+        if (panel) {
+          panel.classList.toggle('is-active', id === tabId);
+        }
+      });
+
+      // Update Header Progress & Pager
+      var idx = TAB_ORDER.indexOf(tabId);
+      var meta = TAB_META[tabId];
+      var hdrProg = document.getElementById('header-progress');
+      if (hdrProg && meta) {
+        hdrProg.textContent = '分頁 ' + meta.num + ' / 06 · ' + meta.name;
+      }
+
+      var prevBtn = document.getElementById('pager-prev');
+      var nextBtn = document.getElementById('pager-next');
+      var indEl = document.getElementById('pager-indicator');
+      if (indEl && meta) indEl.textContent = meta.num + ' / 06 · ' + meta.name;
+      if (prevBtn) {
+        prevBtn.disabled = (idx === 0);
+        prevBtn.textContent = idx > 0 ? '← ' + TAB_META[TAB_ORDER[idx - 1]].name : '← 已在首頁';
+      }
+      if (nextBtn) {
+        nextBtn.disabled = (idx === TAB_ORDER.length - 1);
+        nextBtn.textContent = idx < TAB_ORDER.length - 1 ? TAB_META[TAB_ORDER[idx + 1]].name + ' →' : '已至最終分頁';
+      }
+
+      // Mount interactive map into the active page & refresh chart if overview
+      mountAtlasIntoTab(tabId);
+      if (tabId === 'overview') {
+        setTimeout(renderOverviewChart, 40);
+      }
+
+      // Scroll cleanly to top of workspace nav
+      var navWrap = document.querySelector('.spa-nav-wrap');
+      if (navWrap && window.scrollY > navWrap.offsetTop) {
+        window.scrollTo({ top: Math.max(0, navWrap.offsetTop - 8), behavior: 'smooth' });
+      }
+    }
+
+    function stepTab(delta) {
+      var idx = TAB_ORDER.indexOf(currentTab);
+      var nextIdx = idx + delta;
+      if (nextIdx >= 0 && nextIdx < TAB_ORDER.length) {
+        switchTab(TAB_ORDER[nextIdx]);
+      }
+    }
+
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    // ==================== BOOTSTRAP ====================
+    document.addEventListener('DOMContentLoaded', function() {
+      TAB_ORDER.forEach(function(tabId) {
+        renderWaypoints(tabId);
+        renderScriptureArea(tabId);
+        renderCompanions(tabId);
+      });
+      renderOverviewTimeline();
+      renderCouncilProtocol();
+      renderPrisonEpistles();
+      initAtlasMap();
+      switchTab('overview');
+      refreshIcons();
+    });
+  </script>
+</body>
+</html>
